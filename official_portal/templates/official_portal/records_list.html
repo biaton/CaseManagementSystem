@@ -1,0 +1,129 @@
+{% extends "official_portal/base_official.html" %}
+
+{% block official_title %}Blotter Case Records{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border" 
+     x-data="{ 
+         isDeleteModalOpen: false,
+         deleteUrl: '',
+         deleteIdentifier: ''
+     }">
+    
+    <!-- ======================================================================= -->
+    <!-- HEADER and FILTERS Section -->
+    <!-- ======================================================================= -->
+    <div class="flex flex-col md:flex-row items-start md:items-center md:justify-between gap-4 mb-6 border-b border-gray-200 pb-5">
+        <div>
+            <h2 class="text-4xl font-extrabold text-gray-900">Records</h2>
+            <!--<p class="text-sm text-gray-500 mt-1">Master list of all formal complaints filed in the barangay.</p>-->
+        </div>
+        
+        <form method="GET" class="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
+            <div class="flex-shrink-0">
+                <select name="status" class="h-full py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                    <option value="">All Statuses</option>
+                    {% for value, display in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ display }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="relative flex-grow">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input type="text" name="q" value="{{ search_query }}" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500 text-sm" placeholder="Search...">
+            </div>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">Search</button>
+        </form>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- BLOTTER TABLE Section -->
+    <!-- ======================================================================= -->
+    <div class="overflow-x-auto rounded-lg border">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider">Case Info</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider">Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-800 uppercase tracking-wider">Location</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-800 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-800 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for record in blotter_records %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <p class="text-sm font-bold text-gray-900">{{ record.blotter_id }}</p>
+                        <p class="text-xs text-gray-500">Complainant: {{ record.complainant.get_full_name }}</p>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        <p>Incident: {{ record.date_of_incident|date:"M d, Y" }}</p>
+                        <p class="text-xs text-gray-400">Reported: {{ record.date_filed|date:"M d, Y" }}</p>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 max-w-xs truncate">{{ record.location_of_incident }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full 
+                            {% if record.status == 'New' %}bg-blue-100 text-blue-800
+                            {% elif record.status == 'Dismiss' or record.status == 'Withdraw' %}bg-red-100 text-red-800
+                            {% elif record.status == 'Certified' %}bg-green-100 text-green-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ record.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-lg font-medium">
+                        <a href="{% url 'record_detail' record.pk %}" class="text-indigo-600 hover:text-indigo-500 p-2 rounded-full hover:bg-indigo-50" title="View Details"><i class="bi bi-folder2-open"></i></a>
+                        <button @click="isDeleteModalOpen = true; deleteUrl = `{% url 'delete_blotter' record.pk %}`; deleteIdentifier = `{{ record.blotter_id|escapejs }}`;" 
+                                class="text-red-500 hover:text-red-400 p-2 rounded-full hover:bg-red-50 ml-2" title="Delete">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-10 text-gray-500">
+                    <i class="bi bi-journal-x" style="font-size: 3rem;"></i>
+                    <p class="mt-2 font-semibold">No Blotter Records Found</p>
+                    <p class="text-sm">Try a different search or wait for new cases to be filed.</p>
+                </td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- DELETE CONFIRMATION MODAL Section -->
+    <!-- ======================================================================= -->
+    <div x-show="isDeleteModalOpen" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+        <div @click="isDeleteModalOpen = false" class="fixed inset-0 bg-black bg-opacity-60"></div>
+        <div @click.outside="isDeleteModalOpen = false" class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <form :action="deleteUrl" method="POST">
+                {% csrf_token %}
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mt-4">Delete Blotter Case</h3>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Are you sure you want to delete case <strong x-text="deleteIdentifier"></strong>? 
+                        This action cannot be undone.
+                    </p>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                    <button type="button" @click="isDeleteModalOpen = false" class="text-sm font-semibold py-2 px-4 rounded-md bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="text-sm font-semibold py-2 px-4 rounded-md bg-red-600 text-white shadow-sm hover:bg-red-500">
+                        Yes, Delete It
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts_official %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}

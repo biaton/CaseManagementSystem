@@ -1,0 +1,68 @@
+{% extends "official_portal/base_official.html" %}
+
+{% block official_title %}View {{ record_type }}s{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-6 rounded-lg shadow-md border">
+    <!-- HEADER SECTION -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 border-b border-gray-200 pb-4">
+        <div>
+            <h2 class="text-2xl lg:text-3xl font-bold text-gray-800">Filed {{ record_type }} Records</h2>
+            <p class="text-sm text-gray-500 mt-1">List of all {{ record_type|lower }}s filed through on-site and resident portals.</p>
+        </div>
+        <form method="GET" class="mt-4 sm:mt-0 flex space-x-2 w-full sm:w-auto">
+            <input name="q" value="{{ search_query }}" type="text" placeholder="Search..." class="px-3 py-2 border border-gray-300 rounded-md text-sm w-full sm:w-auto focus:ring-blue-500 focus:border-blue-500">
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700">Search</button>
+        </form>
+    </div>
+    
+    <!-- RECORDS TABLE -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    {% if record_type == 'Blotter' %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Case No.</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Complainant</th>
+                    {% else %}
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Report ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Informant</th>
+                    {% endif %}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date of Incident</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Filed</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Summary</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Action</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for record in records %}
+                <tr class="hover:bg-gray-50">
+                    {% if record_type == 'Blotter' %}
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ record.blotter_id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ record.complainant.get_full_name }}</td>
+                    {% else %}
+                        <!-- Hindi na natin kailangan ng Report ID for now -->
+                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">-</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ record.informant.get_full_name }}</td>
+                    {% endif %}
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ record.date_of_incident|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ record.date_filed|date:"M d, Y" }}</td>
+                    {% if record_type == 'Blotter' %}
+                         <td class="px-6 py-4 text-sm text-gray-600 max-w-sm truncate">{{ record.incident_description }}</td>
+                    {% else %}
+                         <td class="px-6 py-4 text-sm text-gray-600 max-w-sm truncate">{{ record.report_details }}</td>
+                    {% endif %}
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <a href="#" class="text-indigo-600 hover:text-indigo-900 p-2 rounded-full hover:bg-indigo-50" title="View Details">
+                            <i class="bi bi-eye-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center py-10 text-gray-500">No {{ record_type|lower }} records found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

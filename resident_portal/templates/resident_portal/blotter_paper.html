@@ -1,0 +1,55 @@
+{% extends "resident_portal/base_resident.html" %}
+{% load static %}
+{% block title %}Blotter Paper: {{ blotter.blotter_id }}{% endblock %}
+
+{% block extra_head %}
+<style>
+    @media print {
+        body * { visibility: hidden; }
+        #printable-paper, #printable-paper * { visibility: visible; }
+        #printable-paper { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; border: none !important; box-shadow: none !important; }
+        .no-print { display: none !important; }
+        @page { size: A4; margin: 0.75in; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md border">
+    <div class="flex justify-between items-center mb-6 no-print">
+        <div>
+            <h2 class="text-2xl font-bold">Printable Blotter Report</h2>
+            <p class="text-sm text-gray-500">Case ID: {{ blotter.blotter_id }}</p>
+        </div>
+        <div class="flex gap-4">
+             <a href="{% url 'resident_portal:my_blotters_list' %}" class="text-sm font-semibold py-2 px-4 rounded-md bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Back</a>
+            <button onclick="window.print()" class="bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-800"><i class="fas fa-print mr-2"></i>Print</button>
+        </div>
+    </div>
+
+    <div id="printable-paper" class="p-4 sm:p-10 border font-serif text-sm">
+        <!-- I-paste mo dito ang buong #blotter-paper-content div mula sa official_portal/record_detail.html -->
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b-2 border-black pb-4">
+            <img src="{% static 'images/city_logo.png' %}" alt="Logo" class="img-fluid" style="max-width: 115px;">
+            <div class="text-center">
+                <p class="font-semibold">Republic of the Philippines</p>
+                <p class="font-semibold">City of Mandaluyong</p>
+                <h1 class="text-2xl font-bold">BARANGAY ADDITION HILLS</h1>
+                <p class="font-semibold">OFFICE OF THE LUPONG TAGAPAMAYAPA</p>
+            </div>
+            <img src="{% static 'images/barangay_seal.png' %}" alt="Logo" class="img-fluid" style="max-width: 110px;">
+        </div>
+        <!-- Title --><h2 class="text-center text-3xl font-bold my-8 tracking-widest">INCIDENT REPORT</h2>
+        <!-- Details Table --><table class="w-full border-collapse border border-black">
+            <tr><td class="border border-black p-2 font-bold w-1/4">FOR:</td><td class="border border-black p-2" colspan="3">The Punong Barangay</td></tr>
+            <tr><td class="border border-black p-2 font-bold">COMPLAINANT/S:</td><td class="border border-black p-2" colspan="3">{{ blotter.complainant.get_full_name|upper }}</td></tr>
+            <tr><td class="border border-black p-2 font-bold">RESPONDENT/S:</td><td class="border border-black p-2" colspan="3">{{ blotter.respondent_first_name|upper }} {{ blotter.respondent_last_name|upper }}</td></tr>
+            <tr><td class="border border-black p-2 font-bold">SUBJECT:</td><td class="border border-black p-2" colspan="3">{{ blotter.get_incident_type_display }}</td></tr>
+            <tr><td class="border border-black p-2 font-bold">DATE:</td><td class="border border-black p-2">{{ blotter.date_filed|date:"F d, Y" }}</td><td class="border border-black p-2 font-bold">CASE NO:</td><td class="border border-black p-2">{{ blotter.blotter_id }}</td></tr>
+        </table>
+        <!-- Narrative Section --><div class="border-x border-b border-black p-2"><p class="text-center font-bold my-2">NARRATION OF FACTS</p><p class="text-justify indent-8 leading-relaxed">This is to certify that on or about <span class="font-semibold">{{ blotter.date_of_incident|date:"F d, Y" }}</span>, the complainant, <span class="font-semibold">{{ blotter.complainant.get_full_name }}</span>, residing at {{ blotter.complainant.address }}, appeared at this office to report an incident of <span class="font-semibold">{{ blotter.get_incident_type_display }}</span> which transpired at <span class="font-semibold">{{ blotter.location_of_incident }}</span>.</p><p class="text-justify indent-8 mt-4 leading-relaxed">According to the complainant, the following events occurred:</p><p class="mt-2 p-4 border bg-gray-50 leading-relaxed min-h-[10rem]">{{ blotter.incident_description }}</p><p class="text-justify indent-8 mt-4 leading-relaxed">This report is being filed for record and whatever legal purpose it may serve.</p></div>
+        <!-- Signature --><div class="grid grid-cols-2 gap-12 mt-16"><div class="text-center"><p class="border-b-2 border-black pb-1 font-semibold">{{ blotter.complainant.get_full_name|upper }}</p><p class="font-semibold">Complainant</p></div><div class="text-center"><p class="border-b-2 border-black pb-1 font-semibold">_________________________</p><p class="font-semibold">Prepared By / Officer-in-Charge</p></div></div>
+    </div>
+</div>
+{% endblock %}

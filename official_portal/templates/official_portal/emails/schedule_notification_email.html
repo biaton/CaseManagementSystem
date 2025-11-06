@@ -1,0 +1,23 @@
+{% extends "official_portal/emails/_base_email.html" %}
+
+{% block email_title %}Notice of Hearing for Case: {{ case.blotter_id }}{% endblock %}
+
+{% block email_header %}Notice of Hearing / Schedule{% endblock %}
+
+{% block email_content %}
+<p style="font-size: 18px; font-weight: bold; margin: 0 0 20px 0;">Hi {{ case.complainant.first_name }},</p>
+<p style.="font-size: 16px; line-height: 1.5;">This is to formally notify you of the schedule regarding your case, <strong>{{ case.blotter_id }}</strong>.</p>
+
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0; text-align: center;">
+    <p style="margin: 0; font-size: 14px; text-transform: uppercase; color: #6c757d;">Proceeding Type</p>
+    <p style="margin: 0 0 15px 0; font-size: 20px; font-weight: bold;">{{ schedule.schedule_type }}</p>
+
+    <p style="margin: 0; font-size: 14px; text-transform: uppercase; color: #6c757d;">Date & Time</p>
+    <p style="margin: 0; font-size: 18px; font-weight: bold;">{{ schedule.appearance_date|date:"l, F d, Y" }} at {{ schedule.appearance_time|time:"g:i A" }}</p>
+    
+    <p style="margin: 15px 0 0 0; font-size: 14px; text-transform: uppercase; color: #6c757d;">Location</p>
+    <p style="margin: 0; font-size: 16px; font-weight: bold;">Barangay Hall, Addition Hills</p>
+</div>
+
+<p style="font-size: 16px; line-height: 1.5;">Your presence is required. Please bring any necessary documents and witnesses. Failure to appear may result in the dismissal of your complaint.</p>
+{% endblock %}

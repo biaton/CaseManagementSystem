@@ -1,0 +1,75 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+{% block official_title %}My Profile{% endblock %}
+
+{% block extra_head_official %}
+<style>.form-input{display:block;width:100%;padding:.5rem .75rem;border:1px solid #d1d5db;border-radius:.375rem;}.form-input:focus{outline:2px solid transparent;outline-offset:2px;border-color:#4f46e5;box-shadow:0 0 0 1px #4f46e5;}</style>
+{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md border">
+    <!-- HEADER -->
+    <div class="mb-6 pb-4 border-b">
+        <h2 class="text-2xl font-bold text-gray-800">My Profile</h2>
+        <p class="text-sm text-gray-500 mt-1">Manage your personal and contact information.</p>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- LEFT SIDE: Display-Only Info -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="text-center">
+                <i class="bi bi-person-circle text-8xl text-gray-300"></i>
+                <h3 class="text-xl font-bold text-gray-900 mt-2">{{ user.get_full_name }}</h3>
+            </div>
+            <div class="space-y-4 text-sm">
+                <div>
+                    <p class="font-semibold text-gray-500">Position</p>
+                    <p class="text-gray-800 font-medium">{{ user.barangay_position|default:"N/A" }}</p>
+                </div>
+                 <div>
+                    <p class="font-semibold text-gray-500">Gender</p>
+                    <p class="text-gray-800 font-medium">{{ user.gender|default:"N/A" }}</p>
+                </div>
+                 <div>
+                    <p class="font-semibold text-gray-500">Date Joined</p>
+                    <p class="text-gray-800 font-medium">{{ user.date_joined|date:"F d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Editable Form -->
+        <div class="lg:col-span-2 border-t lg:border-t-0 lg:border-l lg:pl-8 pt-6 lg:pt-0">
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+            
+                {% if form.errors %}
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-md">...</div>
+                {% endif %}
+
+                <div>
+                    <label class="block text-sm font-medium">{{ form.address.label }}</label>
+                    {{ form.address }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">{{ form.phone_number.label }}</label>
+                    {{ form.phone_number }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">{{ form.email.label }}</label>
+                    {{ form.email }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">{{ form.birthday.label }}</label>
+                    {{ form.birthday }}
+                </div>
+                
+                <div class="text-right">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

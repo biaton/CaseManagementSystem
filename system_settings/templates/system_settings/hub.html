@@ -1,0 +1,121 @@
+{% extends "official_portal/base_official.html" %}
+
+{% block official_title %}System Settings{% endblock %}
+
+{% block extra_head_official %}
+<style>
+    /* Custom style para sa card hover effect */
+    .settings-card {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
+    }
+    .settings-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1), 0 6px 6px rgba(0, 0, 0, 0.08);
+    }
+</style>
+{% endblock %}
+
+
+{% block official_content_main %}
+<div class="py-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- HEADER SECTION -->
+        <div class="text-center mb-12">
+            <div class="inline-block p-4 bg-indigo-100 text-indigo-600 rounded-full mb-4">
+                <i class="bi bi-gear-wide-connected" style="font-size: 3rem;"></i>
+            </div>
+            <h1 class="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+                System Settings & Management
+            </h1>
+            <p class="mt-4 text-xl text-gray-500 max-w-3xl mx-auto">
+                Configure core functionalities of the barangay system.
+            </p>
+        </div>
+
+        <!-- SETTINGS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            {# --- CARD 1: Add Officials --- #}
+            <a href="{% url 'system_settings:manage_officials_display' %}" class="settings-card block p-6 bg-white rounded-2xl shadow-lg border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 text-white shadow-lg">
+                        <i class="bi bi-person-plus-fill text-3xl"></i>
+                    </div>
+                    <div class="ml-5">
+                        <h3 class="text-lg font-bold text-gray-900">Add Officials</h3>
+                        <p class="text-sm text-gray-500 mt-1">update new officials in side bar.</p>
+                    </div>
+                </div>
+            </a>
+
+            {# --- CARD 2: Manage Hotlines --- #}
+            <a href="{% url 'system_settings:manage_hotlines' %}" class="settings-card block p-6 bg-white rounded-2xl shadow-lg border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-red-400 to-rose-500 text-white shadow-lg">
+                        <i class="bi bi-telephone-plus-fill text-3xl"></i>
+                    </div>
+                    <div class="ml-5">
+                        <h3 class="text-lg font-bold text-gray-900">Manage Hotlines</h3>
+                        <p class="text-sm text-gray-500 mt-1">Update emergency contacts.</p>
+                    </div>
+                </div>
+            </a>
+
+            {# --- CARD 3: Edit Barangay Info --- #}
+            <a href="{% url 'system_settings:edit_barangay_info' %}" class="settings-card block p-6 bg-white rounded-2xl shadow-lg border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-lg">
+                        <i class="bi bi-building-fill-gear text-3xl"></i>
+                    </div>
+                    <div class="ml-5">
+                        <h3 class="text-lg font-bold text-gray-900">Barangay Info</h3>
+                        <p class="text-sm text-gray-500 mt-1">Change name, address, & logo.</p>
+                    </div>
+                </div>
+            </a>
+
+            {# --- CARD 4: Add Contact --- #}
+            <a href="{% url 'system_settings:manage_contacts' %}" class="settings-card block p-6 bg-white rounded-2xl shadow-lg border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-white shadow-lg">
+                        <i class="bi bi-person-lines-fill text-3xl"></i>
+                    </div>
+                    <div class="ml-5">
+                        <h3 class="text-lg font-bold text-gray-900">Manage Contacts</h3>
+                        <p class="text-sm text-gray-500 mt-1">Update contacts directory.</p>
+                    </div>
+                </div>
+            </a>
+
+            {# --- CARD 5: Add Link --- #}
+            <a href="{% url 'system_settings:manage_links' %}" class="settings-card block p-6 bg-white rounded-2xl shadow-lg border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-purple-400 to-violet-500 text-white shadow-lg">
+                        <i class="bi bi-link-45deg text-3xl"></i>
+                    </div>
+                    <div class="ml-5">
+                        <h3 class="text-lg font-bold text-gray-900">Manage Links</h3>
+                        <p class="text-sm text-gray-500 mt-1">Update social media links.</p>
+                    </div>
+                </div>
+            </a>
+            
+            {# --- CARD 6: Django Admin Panel --- #}
+            <a href="{% url 'admin:index' %}" target="_blank" class="settings-card block p-6 bg-gray-800 rounded-2xl shadow-lg border">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-slate-600 text-yellow-300 shadow-lg">
+                        <i class="bi bi-shield-lock-fill text-3xl"></i>
+                    </div>
+                    <div class="ml-5">
+                        <h3 class="text-lg font-bold text-white">Advanced Admin</h3>
+                        <p class="text-sm text-gray-300 mt-1">Full system management.</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

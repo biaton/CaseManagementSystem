@@ -1,0 +1,97 @@
+{% extends "resident_portal/base_simple.html" %}
+{% load static %}
+
+{% block title %}Enter OTP{% endblock %}
+
+{% block extra_head %}
+<style>
+    .otp-input { text-align: center; font-size: 1.5rem; font-weight: 600; border: 2px solid #dee2e6; border-radius: 0.5rem; transition: border-color 0.2s; width: 45px; height: 50px; }
+    .otp-input:focus { outline: none; border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-0 rounded-4" style="max-width: 480px;">
+    <div class="card-body p-5">
+        <div class="text-center mb-4">
+            <a href="{% url 'resident_portal:public_home' %}">
+                <img src="{% static 'images/barangay_seal.png' %}" alt="Logo" width="80">
+            </a>
+        </div>
+        <div class="text-center">
+            <h1 class="h4 fw-bold mb-2">Check Your Email</h1>
+            <p class="text-muted small mb-4">We've sent a 6-digit code. Please enter it below to continue. The code is valid for 5 minutes.</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert {% if 'error' in message.tags %}alert-danger{% else %}alert-success{% endif %} small py-2">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        
+        <form id="otpForm" method="POST">
+            {% csrf_token %}
+            {{ form.otp }}
+            <div class="d-flex justify-content-center gap-2 mb-4" id="otp-input-container">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+                <input type="text" class="otp-input" maxlength="1">
+            </div>
+            <div class="d-grid"><button type="submit" class="btn btn-primary fw-semibold py-2">Verify & Proceed</button></div>
+        </form>
+        <div class="text-center mt-4"><a href="{% url 'resident_portal:password_reset_request' %}" class="text-muted small text-decoration-none">← Didn't get a code? Resend.</a></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const otpContainer = document.getElementById('otp-input-container');
+        const inputs = otpContainer.querySelectorAll('input');
+        const hiddenOtpInput = document.getElementById('id_otp');
+        const form = document.getElementById('otpForm');
+
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                // Lumipat sa susunod na box kung may na-type
+                if (input.value && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+                combineInputs();
+            });
+
+            input.addEventListener('keydown', (e) => {
+                // Bumalik sa previous box kung nag-backspace at walang laman
+                if (e.key === 'Backspace' && !input.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+            });
+
+            // Para sa pag-paste ng code
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasteData = e.clipboardData.getData('text').slice(0, 6);
+                pasteData.split('').forEach((char, i) => {
+                    if (inputs[i]) {
+                        inputs[i].value = char;
+                    }
+                });
+                inputs[Math.min(inputs.length - 1, pasteData.length - 1)].focus();
+                combineInputs();
+            });
+        });
+
+        function combineInputs() {
+            let otp = '';
+            inputs.forEach(input => {
+                otp += input.value;
+            });
+            hiddenOtpInput.value = otp;
+        }
+    });
+</script>
+{% endblock %}

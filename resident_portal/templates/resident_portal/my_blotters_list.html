@@ -1,0 +1,63 @@
+{% extends "resident_portal/base_resident.html" %}
+{% block title %}My Blotter Cases{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md border">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Incident Details</h1>
+    <!-- <a href="{% url 'resident_portal:my_cases_hub' %}" class="text-sm font-semibold text-indigo-600 hover:underline">← Go Back</a>-->
+    </div>
+    <!-- BLOTTER CASES TABLE -->
+    <div class="space-y-4">
+        {% for case in blotters %}
+        <div class="bg-gray-50 rounded-lg p-4 border hover:border-indigo-500 hover:shadow-md transition-all">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 items-center">
+                <!-- Case Info (Mobile and Desktop) -->
+                <div class="col-span-2 md:col-span-2">
+                    <p class="md:hidden text-xs font-semibold text-gray-500 uppercase">Case Info</p>
+                    <p class="text-sm font-bold text-gray-800">{{ case.blotter_id }}</p>
+                    <p class="text-xs text-gray-600 truncate">{{ case.get_incident_type_display }}</p>
+                </div>
+                <!-- Date Filed (Desktop) -->
+                <div class="hidden md:block">
+                    <p class="text-xs font-semibold text-gray-500 uppercase">Date Filed</p>
+                    <p class="text-sm text-gray-700">{{ case.date_filed|date:"F d, Y" }}</p>
+                </div>
+                <!-- Status (Desktop) -->
+                <div class="text-left md:text-center">
+                     <p class="md:hidden text-xs font-semibold text-gray-500 uppercase">Status</p>
+                     <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full 
+                        {% if case.status == 'Certified' %}bg-green-100 text-green-800
+                        {% elif case.status == 'Dismissed' or case.status == 'Withdrawn' %}bg-red-100 text-red-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ case.get_status_display }}
+                    </span>
+                </div>
+                <!-- Actions (Desktop) -->
+                 <div class="col-span-2 md:col-span-1 text-right">
+                    <p class="md:hidden text-xs font-semibold text-gray-500 uppercase mb-1">Actions</p>
+                    <div class="text-lg space-x-4">
+                        <a href="{% url 'resident_portal:report_summary' case.pk %}" class="text-gray-400 hover:text-blue-600" title="View Summary & Timeline">
+                            <i class="bi bi-file-text-fill"></i>
+                        </a>
+                        <a href="{% url 'resident_portal:blotter_paper' case.pk %}" class="text-gray-400 hover:text-gray-700" title="View/Print Blotter Paper">
+                            <i class="bi bi-file-earmark-ruled-fill"></i>
+                        </a>
+                        <!-- Lalabas lang ito kung may schedule -->
+                        {% if case.schedules.exists %}
+                        <a href="{% url 'resident_portal:hearing_schedule' case.pk %}" class="text-gray-400 hover:text-green-600" title="View Hearing Schedules">
+                            <i class="bi bi-calendar2-check-fill"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-10 text-gray-500 border-2 border-dashed rounded-lg">
+            <p>You have not filed any blotter cases yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

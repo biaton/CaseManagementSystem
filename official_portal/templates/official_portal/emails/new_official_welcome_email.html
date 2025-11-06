@@ -1,0 +1,24 @@
+{% extends "official_portal/emails/_base_email.html" %}
+
+{% block email_title %}Welcome to the Official Portal{% endblock %}
+
+{% block email_header %}Account Created{% endblock %}
+
+{% block email_content %}
+<p style="font-size: 18px; font-weight: bold; margin: 0 0 20px 0;">Hi {{ user.get_full_name }},</p>
+<p style="font-size: 18px; font-weight: bold; margin: 0 0 20px 0;">An official account has been created for you for the Barangay Addition Hills Case Management System.</p>
+
+<div style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; margin: 20px 0;">
+    <p style="margin: 0;">You can now log in using the following credentials:</p>
+    <p style="margin: 10px 0 0 0;"><strong>Email:</strong> {{ user.email }}</p>
+    <p style="margin: 5px 0 0 0;"><strong>Password:</strong> <strong style="font-size: 18px; color: #dc3545;">{{ password }}</strong></p>
+</div>
+
+<p style="font-size: 14px; color: #6c757d;">For security, it is highly recommended that you change your password immediately after your first login.</p>
+
+<table style="width: 100%; border-spacing: 0; margin-top: 30px;">
+    <tr><td style="text-align: center;">
+        <a href="{% url 'official_login' %}" target="_blank" style="background-color:#0d6efd; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">Login to the Official Portal</a>
+    </td></tr>
+</table>
+{% endblock %}

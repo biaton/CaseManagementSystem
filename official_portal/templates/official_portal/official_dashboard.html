@@ -1,0 +1,228 @@
+{% extends "official_portal/base_official.html" %}
+{% load official_extras %}
+
+{% block official_title %}Dashboard{% endblock %}
+
+{% block extra_head_official %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}
+
+{% block official_content_main %}
+    <!-- DASHBOARD HEADER -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p class="text-gray-500">{{ today_formatted }}</p>
+    </div>
+
+    <!-- STATS CARDS SECTION -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl border border-blue-300 shadow-sm flex items-center justify-between"><div><p class="text-sm font-medium text-gray-500 uppercase">New Cases</p><p class="text-3xl font-extrabold">{{ new_cases_count }}</p></div><div class="bg-blue-100 text-blue-600 rounded-full p-3"><i class="bi bi-folder-plus text-2xl"></i></div></div>
+        <div class="bg-white p-6 rounded-xl border border-yellow-300 shadow-sm flex items-center justify-between"><div><p class="text-sm font-medium text-gray-500 uppercase">Cases Today</p><p class="text-3xl font-extrabold">{{ total_cases_today_count }}</p></div><div class="bg-yellow-100 text-yellow-600 rounded-full p-3"><i class="bi bi-calendar-day text-2xl"></i></div></div>
+        <div class="bg-white p-6 rounded-xl border border-green-400 shadow-sm flex items-center justify-between"><div><p class="text-sm font-medium text-gray-500 uppercase">Resolved Cases</p><p class="text-3xl font-extrabold">{{ resolved_cases_count }}</p></div><div class="bg-green-100 text-green-600 rounded-full p-3"><i class="bi bi-patch-check-fill text-2xl"></i></div></div>
+        <div class="bg-white p-6 rounded-xl border border-blue-400 shadow-sm flex items-center justify-between"><div><p class="text-sm font-medium text-gray-500 uppercase">Residents</p><p class="text-3xl font-extrabold">{{ registered_residents_count }}</p></div><div class="bg-indigo-100 text-indigo-600 rounded-full p-3"><i class="bi bi-people-fill text-2xl"></i></div></div>
+    </div>
+
+    <!-- CHARTS SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="lg:col-span-1 bg-white p-6 rounded-xl border border-blue-400 shadow-sm flex flex-col">
+            <div class="p-1 border-b flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold">Cases by Incident Type</h3>
+                    <p class="text-sm text-gray-500 mb-4">Breakdown of all reported incidents.</p>
+                </div>
+                <a href="{% url 'reports_analytics:monthly_analytics' %}" 
+                   class="flex-shrink-0 font-semibold ms-20 text-xs text-indigo-600 hover:underline">
+                    View Details
+                </a>
+            </div>
+            <div class="flex-grow flex items-center justify-center h-64 md:h-72">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="lg:col-span-1 bg-white p-6 rounded-xl border border-blue-400 shadow-sm flex flex-col">
+            <h3 class="text-lg font-bold">Monthly Case Volume</h3>
+            <p class="text-sm text-gray-500 mb-4">Total cases filed each month this year.</p>
+            <div class="flex-grow h-64 md:h-72"><canvas id="columnChart"></canvas></div>
+        </div>
+    </div>
+
+    <!-- ============================================= -->
+    <!-- LUPON AVAILABILITY MATRIX (ITO ANG BAGO) -->
+    <!-- ============================================= -->
+    <!--<div class="bg-white rounded-xl border border-blue-400 shadow-sm mt-8 mb-8">
+        <div class="p-6 border-b flex justify-between items-center">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800">Lupon Tagapamayapa Schedule</h3>
+                <p class="text-sm text-gray-500">Check who is available for scheduling.</p>
+            </div>
+            <a href="{% url 'system_settings:manage_lupon_schedule' %}" class="text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-md">
+                Manage Schedule
+            </a>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50">
+                    <tr class="font-semibold text-gray-600">
+                        <th class="p-3 text-left">Name</th>
+                        <th class="p-3 text-center">Mon</th>
+                        <th class="p-3 text-center">Tue</th>
+                        <th class="p-3 text-center">Wed</th>
+                        <th class="p-3 text-center">Thu</th>
+                        <th class="p-3 text-center">Fri</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for member in lupon_members_availability %}
+                    <tr class="hover:bg-slate-50/50">
+                        <td class="p-3 font-semibold border-r">
+                        {{ member.full_name }}</td>
+                        {% for is_avail in member.availability %}
+                        <td class="p-3 text-center">
+                            {% if is_avail %}
+                                <i class="bi bi-check-circle-fill text-green-500"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle-fill text-red-400"></i>
+                            {% endif %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="text-center py-6 text-gray-500">No active Lupon Members found.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>-->
+
+    <!-- WEEKLY CALENDAR SCHEDULE VIEW -->
+    <div class="bg-white rounded-xl border border-blue-400 shadow-sm">
+        <div class="p-6 border-b"><h3 class="text-lg font-bold">This Week's Schedule</h3><p class="text-sm text-gray-500">Upcoming hearings and appointments.</p></div>
+        <div class="grid grid-cols-7">
+            {% for day in week_days %}
+            <div class="border-r border-gray-200 last:border-r-0">
+                <div class="text-center py-2 border-b-2 {% if day == today %}border-gray-200{% else %}border-gray-200{% endif %}">
+                    <p class="text-xs font-bold text-gray-400 uppercase">{{ day|date:"D" }}</p><p class="text-2xl font-extrabold text-gray-700">{{ day|date:"d" }}</p>
+                </div>
+                <div class="p-2 space-y-2 h-48 overflow-y-auto">
+                    {% for schedule in grouped_schedules|get:day %}
+                    <a href="{% url 'manage_proceedings' pk=schedule.case.pk %}" class="block p-2 rounded-md transition-colors
+                        {% if schedule.schedule_type == 'Summon' %} bg-blue-50 hover:bg-blue-100
+                        {% elif schedule.schedule_type == 'Mediation' %} bg-green-50 hover:bg-green-100
+                        {% else %} bg-purple-50 hover:bg-purple-100 {% endif %}">
+                        <div class="flex items-center space-x-2"><span class="h-2 w-2 rounded-full {% if schedule.schedule_type == 'Summon' %}bg-blue-500{% elif schedule.schedule_type == 'Mediation' %}bg-green-500{% else %}bg-purple-500{% endif %}"></span><p class="text-xs font-bold text-gray-800">{{ schedule.appearance_time|time:"h:i A" }}</p></div>
+                        <p class="text-xs font-semibold text-gray-700 mt-1 truncate" title="{{ schedule.case.blotter_id }}">{{ schedule.case.blotter_id }}</p>
+                    </a>
+                    {% empty %}
+                    <div class="flex items-center justify-center h-full"><i class="bi bi-dash-circle text-blue-400 text-lg"></i></div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    
+{% endblock %}
+
+
+{% block extra_scripts_official %}
+    {{ pie_chart_labels|json_script:"dashboard-pie-labels" }}
+    {{ pie_chart_data|json_script:"dashboard-pie-data" }}
+    {{ column_chart_labels|json_script:"dashboard-column-labels" }}
+    {{ column_chart_data|json_script:"dashboard-column-data" }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    try {
+        // 1. Kunin ang data mula sa mga special <script> tags
+        const pieChartLabels = JSON.parse(document.getElementById('dashboard-pie-labels').textContent);
+        const pieChartData = JSON.parse(document.getElementById('dashboard-pie-data').textContent);
+        const columnChartLabels = JSON.parse(document.getElementById('dashboard-column-labels').textContent);
+        const columnChartData = JSON.parse(document.getElementById('dashboard-column-data').textContent);
+
+        // --- PIE CHART SCRIPT ---
+        const pieCtx = document.getElementById('pieChart');
+        if (pieCtx && pieChartData.length > 0) {
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: pieChartLabels,
+                    datasets: [{
+                        label: 'Cases',
+                        data: pieChartData,
+                        backgroundColor: [
+                            '#3B82F6', // Blue-500
+                            '#10B981', // Green-500
+                            '#F59E0B', // Amber-500
+                            '#8B5CF6', // Violet-500
+                            '#EF4444', // Red-500
+                            '#06B6D4', // Cyan-500
+                            '#EC4899', // Pink-500
+                            '#6B7280', // Gray-500
+                            '#A855F7', // Purple-500
+                            '#EAB308'  // Yellow-500
+                        ],
+                        borderColor: '#ffffff',
+                        borderWidth: 3,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, padding: 15, font: { size: 8 } }
+                        }
+                    },
+                    
+                }
+            });
+        }
+
+        // --- COLUMN CHART SCRIPT ---
+        const columnCtx = document.getElementById('columnChart');
+        if (columnCtx) {
+            new Chart(columnCtx, {
+                type: 'bar',
+                data: {
+                    labels: columnChartLabels,
+                    datasets: [{
+                        label: 'Number of Cases Filed',
+                        data: columnChartData,
+                        backgroundColor: 'rgba(99, 102, 241, 0.8)', // bg-indigo-500
+                        borderColor: 'rgba(99, 102, 241, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#e5e7eb' }, ticks: { stepSize: 1, color: '#6b7280' } },
+                        x: { grid: { display: false }, ticks: { color: '#6b7280' } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#111827',
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 12 },
+                            padding: 10,
+                            cornerRadius: 5
+                        }
+                    }
+                }
+            });
+        }
+
+    } catch (e) {
+        console.error("Error rendering dashboard charts:", e);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,197 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+{% load official_extras %}
+{% block official_title %}Case {{ blotter.blotter_id }}{% endblock %}
+
+{% block official_content_main %}
+<div class="flex flex-col lg:flex-row gap-8">
+    
+    <!-- LEFT SIDE: Case Summary & Actions -->
+    <div class="lg:w-1/2 bg-white p-6 rounded-2xl shadow-xl border">
+        <!-- Header -->
+        <div class="flex justify-between items-start border-b pb-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Case Details</h2>
+                <p class="font-mono bg-gray-100 text-gray-700 px-2 py-1 rounded-md inline-block mt-2">{{ blotter.blotter_id }}</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xs text-gray-500">Status</p>
+                <span class="px-3 py-1 text-sm font-semibold rounded-full 
+                {% if blotter.status == 'New' %} bg-blue-100 text-blue-800
+                {% elif blotter.status == 'Dismiss' or blotter.status == 'Withdraw' %} bg-red-100 text-red-800
+                {% elif blotter.status == 'Certified' %} bg-green-100 text-green-800 {# Certified na rin dito #}
+                {% else %} bg-yellow-100 text-yellow-800 {% endif %}">
+                {{ blotter.get_status_display }}
+            </span>
+            </div>
+        </div>
+        
+        <!-- Details Grid -->
+        <div class="space-y-6 text-sm">
+            <!-- Incident Info -->
+            <div class="bg-slate-50 p-4 rounded-lg">
+                <h3 class="font-bold text-base text-gray-700 mb-2">Incident Information</h3>
+                <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                    <dt class="font-semibold text-gray-600">Incident Type:</dt><dd class="text-gray-800">{{ blotter.get_incident_type_display }}</dd>
+                    <dt class="font-semibold text-gray-600">Date of Incident:</dt><dd class="text-gray-800">{{ blotter.date_of_incident|date:"F d, Y" }}</dd>
+                    <dt class="font-semibold text-gray-600 col-span-2">Location:</dt><dd class="text-gray-800 col-span-2">{{ blotter.location_of_incident }}</dd>
+                </dl>
+            </div>
+            <!-- Parties Info -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <h3 class="font-bold text-base text-gray-700 mb-2">Complainant</h3>
+                    <p class="font-semibold text-gray-800">{{ blotter.complainant.get_full_name }}</p>
+                    <p class="text-gray-600">{{ blotter.complainant.address }}</p>
+                    <p class="text-gray-600"><i class="fas fa-phone-alt fa-xs mr-1"></i>{{ blotter.complainant_contact_number }}</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <h3 class="font-bold text-base text-gray-700 mb-2">Respondent</h3>
+                    <p class="font-semibold text-gray-800">{{ blotter.respondent_first_name }} {{ blotter.respondent_last_name }}</p>
+                    <p class="text-gray-600">{{ blotter.respondent_address }}</p>
+                </div>
+            </div>
+            <!-- Narrative -->
+            <div>
+                <h3 class="font-bold text-base text-gray-700">Narrative of Incident</h3>
+                <p class="mt-2 text-gray-700 bg-slate-50 p-4 rounded-lg leading-relaxed">{{ blotter.incident_description|linebreaksbr }}</p>
+            </div>
+
+            {% if blotter.incident_image %}
+            <div>
+                <h3 class="font-bold text-base text-gray-700">Attached Evidence</h3>
+                <a href="{{ blotter.incident_image.url }}" target="_blank">
+                    <img src="{{ blotter.incident_image.url }}" alt="Uploaded Evidence" class="mt-2 rounded-lg border max-h-48 cursor-pointer">
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Actions Section -->
+    <div class="mt-8 border-t-2 pt-6">
+        {# Check if the user is a Barangay Tanod. Only they will see the "Notify Secretary" button. #}
+        {% if request.user|has_group:'Barangay Tanod' %}
+            <h3 class="text-lg font-semibold mb-4 text-gray-800">For Review by Secretary</h3>
+            <form id="notifySecretaryForm" method="POST" action="{% url 'notify_secretary' blotter.pk %}"> {# Assuming official_portal is your app_name #}
+                {% csrf_token %}
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition-all shadow-md">
+                    <i class="fas fa-bell mr-2"></i>Notify Secretary for Review
+                </button>
+            </form>
+        {% else %}
+            {# All other positions (Punong Barangay, Secretary, Kagawad, etc.) will see the full "Take Action" form. #}
+            <h3 class="text-lg font-semibold mb-4 text-gray-800">Take Action on this Case</h3>
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Update Status To:</label>
+                    {{ form.status }}
+                </div>
+                <div>
+                    <label for="{{ form.remarks.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Remarks (Optional)</label>
+                    {{ form.remarks }}
+                </div>
+                <div class="flex gap-4 pt-2">
+                    <button type="submit" class="w-full bg-green-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-green-700 transition-all shadow-md">
+                        <i class="fas fa-check-circle mr-2"></i>Proceed to Notices
+                    </button>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+    <!-- RIGHT SIDE: Printable Blotter Paper (with complete text) -->
+    <div class="lg:w-1/2">
+        <div class="flex justify-end mb-4">
+            <button onclick="printBlotter()" class="bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-800 shadow-md">
+                <i class="fas fa-print mr-2"></i>Print Blotter
+            </button>
+        </div>
+        <div id="blotter-paper-content" class="bg-white p-10 shadow-xl border font-serif text-sm">
+            <!-- Header -->
+            <div class="flex justify-between items-center border-b-2 border-black pb-4">
+                <img src="{% static 'images/city_logo.png' %}" alt="Logo 1" class="img-fluid" style="max-width: 105px;">
+                <div class="text-center">
+                    <p class="font-semibold">Republic of the Philippines</p>
+                    <p class="font-semibold">City of Mandaluyong</p>
+                    <h1 class="text-2xl font-bold tracking-wider">BARANGAY ADDITION HILLS</h1>
+                    <p class="text-xs">Tel. No.: (123) 456-7890 / Email: contact@additionhills.gov</p>
+                </div>
+                <img src="{% static 'images/barangay_seal.png' %}" alt="Logo 2" class="img-fluid" style="max-width: 100px;">
+            </div>
+            <!-- Title -->
+            <h2 class="text-center text-3xl font-bold my-8 tracking-widest">INCIDENT REPORT</h2>
+            <!-- Details Table -->
+            <table class="w-full border-collapse border border-black">
+                <tr>
+                    <td class="border border-black p-2 font-bold w-1/4">FOR:</td>
+                    <td class="border border-black p-2" colspan="3">The Punong Barangay</td>
+                </tr>
+                <tr>
+                    <td class="border border-black p-2 font-bold">COMPLAINANT/S:</td>
+                    <td class="border border-black p-2" colspan="3">{{ blotter.complainant.get_full_name|upper }}</td>
+                </tr>
+                <tr>
+                    <td class="border border-black p-2 font-bold">RESPONDENT/S:</td>
+                    <td class="border border-black p-2" colspan="3">{{ blotter.respondent_first_name|upper }} {{ blotter.respondent_last_name|upper }}</td>
+                </tr>
+                <tr>
+                    <td class="border border-black p-2 font-bold">SUBJECT:</td>
+                    <td class="border border-black p-2" colspan="3">{{ blotter.get_incident_type_display }}</td>
+                </tr>
+                <tr>
+                    <td class="border border-black p-2 font-bold">DATE:</td>
+                    <td class="border border-black p-2">{{ blotter.date_filed|date:"F d, Y" }}</td>
+                    <td class="border border-black p-2 font-bold">CASE NO:</td>
+                    <td class="border border-black p-2">{{ blotter.blotter_id }}</td>
+                </tr>
+            </table>
+            <!-- Narrative Section -->
+            <div class="border-x border-b border-black p-2">
+                <p class="text-center font-bold my-2">NARRATION OF FACTS / MGA PANGYAYARI</p>
+                <p class="text-justify indent-8 leading-relaxed">
+                    This is to certify that on or about <span class="font-semibold">{{ blotter.date_of_incident|date:"F d, Y" }}</span>, the complainant, <span class="font-semibold">{{ blotter.complainant.get_full_name }}</span>, residing at {{ blotter.complainant.address }}, appeared at this office to report an incident of <span class="font-semibold">{{ blotter.get_incident_type_display }}</span> which transpired at <span class="font-semibold">{{ blotter.location_of_incident }}</span>.
+                </p>
+                <p class="text-justify indent-8 mt-4 leading-relaxed">
+                    According to the complainant, the following events occurred:
+                </p>
+                <p class="mt-2 p-4 border bg-gray-50 leading-relaxed min-h-[10rem]">
+                    {{ blotter.incident_description }}
+                </p>
+                <p class="text-justify indent-8 mt-4 leading-relaxed">
+                    This report is being filed for record and whatever legal purpose it may serve.
+                </p>
+            </div>
+            <!-- Signature -->
+            <div class="grid grid-cols-2 gap-12 mt-16">
+                <div class="text-center">
+                    <p class="border-b-2 border-black pb-1 font-semibold">{{ blotter.complainant.get_full_name|upper }}</p>
+                    <p class="font-semibold">Complainant</p>
+                </div>
+                 <div class="text-center">
+                    <p class="border-b-2 border-black pb-1 font-semibold">_________________________</p>
+                    <p class="font-semibold">Prepared By / Officer-in-Charge</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts_official %}
+<script>
+function printBlotter() {
+    const printContent = document.getElementById('blotter-paper-content').innerHTML;
+    const printWindow = window.open('', '', 'height=800,width=850');
+    printWindow.document.write('<html><head><title>Print Blotter Report</title>');
+    printWindow.document.write('<script src="https://cdn.tailwindcss.com"><\/script>');
+    printWindow.document.write('<style>body { font-family: serif; } @page { size: A4; margin: 0.75in; } </style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write(printContent);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+    setTimeout(() => { printWindow.print(); printWindow.close(); }, 500);
+}
+</script>
+{% endblock extra_scripts_official %}

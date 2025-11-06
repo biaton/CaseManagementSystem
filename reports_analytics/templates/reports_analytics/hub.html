@@ -1,0 +1,16 @@
+{% extends "official_portal/base_official.html" %}
+{% block official_title %}Reports & Analytics Hub{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-6 rounded-lg shadow-md border">
+    <div class="text-center border-b pb-5 mb-6"><h2 class="text-3xl font-bold">Reports & Analytics</h2><p class="text-sm text-gray-500">Generate and view barangay statistical reports.</p></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <a href="{% url 'reports_analytics:lupon_report' %}" class="block p-6 bg-blue-50 text-center rounded-xl hover:bg-blue-100 border-2 border-transparent hover:border-blue-500 transition">
+            <i class="bi bi-shield-check text-5xl text-blue-600"></i><h3 class="mt-2 text-2xl font-bold">Lupon Tagapamayapa Report</h3><p class="text-sm text-gray-500">Summary of case outcomes.</p>
+        </a>
+        <a href="{% url 'reports_analytics:incident_type_report' %}" class="block p-6 bg-green-50 text-center rounded-xl hover:bg-green-100 border-2 border-transparent hover:border-green-500 transition">
+            <i class="bi bi-journal-text text-5xl text-green-600"></i><h3 class="mt-2 text-2xl font-bold">Incident Type Report</h3><p class="text-sm text-gray-500">Summary of incident types per month.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

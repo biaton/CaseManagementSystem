@@ -1,0 +1,97 @@
+{% extends "official_portal/base_official.html" %}
+
+{% block official_title %}Case Details{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border">
+    
+    <!-- HEADER SECTION -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 border-b border-gray-200 pb-4">
+        <div>
+            <h2 class="text-4xl font-extrabold text-gray-900">Incident Details</h2>
+        <!--    <p class="text-sm text-gray-500 mt-1">A comprehensive list of all registered cases and their current standing.</p>-->
+        </div>
+        <form method="GET" class="mt-4 sm:mt-0 flex items-center space-x-2 w-full sm:w-auto">
+            <div class="relative flex-grow">
+                <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none"></i>
+                <input name="q" value="{{ search_query }}" type="text" placeholder="Search..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors">Search</button>
+        </form>
+    </div>
+    
+    <!-- INCIDENT DETAILS TABLE -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Case No.</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Incident Type</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date of Incident</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Last Processed</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Result</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for case in cases %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <!-- Case No. & Complainant -->
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <a href="{% url 'record_detail' case.pk %}" class="font-bold text-gray-900 hover:text-indigo-600">{{ case.blotter_id }}</a>
+                        <p class="text-xs text-gray-500">Complainant: {{ case.complainant.get_full_name }}</p>
+                    </td>
+                    
+                    <!-- Incident Type -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ case.get_incident_type_display }}</td>
+                    
+                    <!-- Date of Incident -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ case.date_of_incident|date:"M d, Y" }}</td>
+
+                    <!-- Status -->
+                    <td class="px-6 py-4 whitespace-nowrap text-left">
+                        <span class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-bold rounded-full 
+                            {% if case.status == 'New' %}bg-blue-100 text-blue-800
+                            {% elif case.status == 'Dismiss' or case.status == 'Withdraw' %}bg-red-100 text-red-800
+                            {% elif case.status == 'Certified' %}bg-green-100 text-green-800 {# Certified na #}
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ case.get_status_display }}
+                        </span>
+                    </td>
+                    
+                    <!-- Last Processed By & Date -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {{ case.last_processed_date|date:"M d, Y" }}
+                        <p class="text-xs text-gray-400">by {{ case.last_processed_by.get_full_name|default:"System" }}</p>
+                    </td>
+                    
+                    <!-- Result -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold 
+                        {% if case.final_result == 'Settled' %}text-green-600 
+                        {% elif case.final_result == 'Unsettled' %}text-red-600
+                        {% else %}text-gray-500{% endif %}">
+                        {{ case.final_result }}
+                    </td>
+                    
+                    <!-- Actions -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <a href="{% url 'create_settlement' case.pk %}" class="text-indigo-600 hover:text-indigo-800 text-lg p-2 rounded-full hover:bg-indigo-50" title="View/Manage Case">
+                            <i class="bi bi-folder2-open"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-10 text-gray-500">
+                        <i class="bi bi-journal-x" style="font-size: 3rem;"></i>
+                        <p class="mt-2 font-semibold">No Case Records Found</p>
+                        <p class="text-sm">Try a different search or wait for new cases to be filed.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock official_content_main %}

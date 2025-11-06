@@ -1,0 +1,203 @@
+{% extends "resident_portal/base_resident.html" %}
+
+{% block title %}Dashboard{% endblock title %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- WELCOME HEADER -->
+<div class="mb-8 mt-4">
+    <div class="bg-white p-6 rounded-2xl border border-white shadow-md flex flex-col">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Welcome, {{ user.first_name|default:user.email }}!</h1>
+        <p class="text-gray-500" id="current-datetime">{{ today_formatted }}</p>
+    <!--<p class="mt-1 text-lg text-gray-500">Here's a summary of your activities and the barangay's status.</p> -->
+    </div>
+</div>
+
+<!-- STATS CARDS (REDESIGNED) -->
+<!--<div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+    <div class="p-6 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg">
+        <p class="text-sm font-medium text-blue-100 uppercase tracking-wider">Your Total Cases</p>
+        <p class="text-4xl font-extrabold mt-1">{{ total_cases_filed }}</p>
+    </div>
+    <div class="p-6 rounded-2xl bg-gradient-to-br from-yellow-400 to-yellow-500 text-white shadow-lg">
+        <p class="text-sm font-medium text-yellow-100 uppercase tracking-wider">Your Ongoing Cases</p>
+        <p class="text-4xl font-extrabold mt-1">{{ ongoing_cases_count }}</p>
+    </div>
+    <div class="p-6 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg">
+        <p class="text-sm font-medium text-green-100 uppercase tracking-wider">Your Settled Cases</p>
+        <p class="text-4xl font-extrabold mt-1">{{ settled_cases_count }}</p>
+    </div>
+</div> -->
+
+<!-- CHARTS (50/50 Split with better styling) -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+    <div class="bg-white p-6 rounded-2xl border border-white shadow-md flex flex-col">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Barangay Incident Analytics Report</h3>
+        <div class="flex-grow h-72 w-full flex items-center justify-center">
+            <canvas id="residentPieChart"></canvas>
+        </div>
+    </div>
+    <div class="bg-white p-6 rounded-2xl border border-white shadow-md flex flex-col">
+        <h3 class="text-lg font-bold text-gray-800 mb-4">Barangay Monthly Incident Analytics Report</h3>
+        <div class="flex-grow h-72 w-full">
+            <canvas id="residentColumnChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- QUICK ACTIONS (REDESIGNED) -->
+<div>
+    <h3 class="text-lg font-bold text-gray-800 mb-4">What would you like to do?</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <!-- Button 1: File a Report -> Blotter -->
+        <a href="{% url 'resident_portal:create_blotter' %}"
+            class="group block p-6 bg-white text-gray-800 rounded-xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-blue-500 transition-all transform hover:-translate-y-2">
+            <i class="bi bi-shield-fill-plus text-4xl text-blue-600"></i>
+            <h4 class="font-bold text-xl mt-4 text-gray-800">Create Blotter</h4>
+            <p class="text-sm text-gray-500 mt-1">File a formal blotter report.</p>
+        </a>
+
+        <!-- Button 2: My Report Records -> Create Report -->
+        <!-- NOTE: Ito ay nakaturo pa rin sa `my_reports` page. Kung gusto mong gumawa ng bagong "Create Report" page, kailangan nating i-adjust ang URL. -->
+        <a href="{% url 'resident_portal:create_report' %}"
+            class="group block p-6 bg-white text-gray-800 rounded-xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-green-600 transition-all transform hover:-translate-y-2">
+            <i class="bi bi-file-earmark-text-fill text-4xl text-green-600"></i>
+            <h4 class="font-bold text-xl mt-4 text-gray-800">Create Report</h4>
+            <p class="text-sm text-gray-500 mt-1">Submit new reports or concerns.</p>
+        </a>
+
+        <!-- Button 3: Announcements -> Complain Record -->
+        <!-- NOTE: Ito ay placeholder pa lang. Kailangan nating gawan ng page para dito. -->
+        <a href="{% url 'resident_portal:my_reports_list' %}"
+            class="group block p-6 bg-white text-gray-800 rounded-xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-purple-500 transition-all transform hover:-translate-y-2">
+            <i class="bi bi-folder2-open text-4xl text-purple-600"></i>
+            <h4 class="font-bold text-xl mt-4 text-gray-800">Complain Record</h4>
+            <p class="text-sm text-gray-500 mt-1">View the history of all your reports.</p>
+        </a>
+
+        <!-- Button 4: Hearing Schedule (Walang pagbabago) -->
+        <a href="{% url 'resident_portal:my_schedules' %}"
+            class="group block p-6 bg-white text-gray-800 rounded-xl shadow-lg hover:shadow-xl border-2 border-transparent hover:border-yellow-500 transition-all transform hover:-translate-y-2">
+            <i class="bi bi-calendar-week-fill text-4xl text-yellow-500"></i>
+            <h4 class="font-bold text-xl mt-4 text-gray-800">View Schedule</h4>
+            <p class="text-sm text-gray-500 mt-1">Check your upcoming hearing dates.</p>
+        </a>
+
+    </div>
+</div>
+
+{# --- Data for JavaScript (No changes here) --- #}
+{{ pie_chart_labels|json_script:"resident-pie-labels" }}
+{{ pie_chart_data|json_script:"resident-pie-data" }}
+{{ column_chart_labels|json_script:"resident-column-labels" }}
+{{ column_chart_data|json_script:"resident-column-data" }}
+
+{% endblock content %}
+
+
+{% block extra_scripts %}
+<script>
+    
+    function updateDateTime() {
+        const now = new Date();
+        // Piliin ang format na gusto mo
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric', 
+            hour: 'numeric', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: true 
+        };
+        const dateTimeElement = document.getElementById('current-datetime');
+        
+        // I-check kung existent ang element bago subukang i-update
+        if (dateTimeElement) {
+            dateTimeElement.textContent = now.toLocaleString('en-US', options);
+        }
+    }
+    
+    updateDateTime();
+    
+    setInterval(updateDateTime, 1000);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        try {
+            const pieLabels = JSON.parse(document.getElementById('resident-pie-labels').textContent);
+            const pieData = JSON.parse(document.getElementById('resident-pie-data').textContent);
+            const columnLabels = JSON.parse(document.getElementById('resident-column-labels').textContent);
+            const columnData = JSON.parse(document.getElementById('resident-column-data').textContent);
+
+            // --- PIE CHART ---
+            const pieCtx = document.getElementById('residentPieChart');
+            if (pieCtx && pieData.length > 0) {
+                new Chart(pieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: pieLabels,
+                        datasets: [{
+                            data: pieData,
+                            backgroundColor: [  
+                               '#3B82F6', // Blue-500
+                               '#10B981', // Green-500
+                               '#F59E0B', // Amber-500
+                               '#8B5CF6', // Violet-500
+                               '#EF4444', // Red-500
+                               '#06B6D4', // Cyan-500
+                               '#EC4899', // Pink-500
+                               '#6B7280', // Gray-500
+                               '#A855F7', // Purple-500
+                               '#EAB308'],
+                            borderColor: '#ffffff', // White border between slices
+                            borderWidth: 1,
+                            hoverOffset: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', 
+                            labels: { padding: 5, boxWidth: 8, font: { size: 9 } } }
+                        },
+                        
+                    }
+                });
+            }
+
+            // --- COLUMN CHART ---
+            const columnCtx = document.getElementById('residentColumnChart');
+            if (columnCtx) {
+                new Chart(columnCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: columnLabels,
+                        datasets: [{
+                            label: 'Cases Filed',
+                            data: columnData,
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)', // bg-blue-600
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+        } catch (e) { console.error("Error rendering resident charts:", e); }
+    });
+</script>
+{% endblock %}

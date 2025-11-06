@@ -1,0 +1,54 @@
+{% extends "resident_portal/base_resident.html" %}
+{% block title %}My General Reports{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md border">
+     <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Complain Record</h1>
+        <!--<a href="{% url 'resident_portal:my_cases_hub' %}" class="text-sm font-semibold text-indigo-600 hover:underline">← Go Back</a> -->
+    </div>
+    <!-- GENERAL REPORTS TABLE -->
+    <div class="space-y-4">
+        {% for report in reports %}
+        <a href="{% url 'resident_portal:resident_report_detail' report.pk %}" class="block">
+            <div class="bg-gray-50 rounded-lg p-4 border hover:border-indigo-500 hover:shadow-md transition-all duration-200">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 items-center">
+                    
+                    <!-- Report Details (Mobile and Desktop) -->
+                    <div class="col-span-2 md:col-span-2">
+                        <p class="md:hidden text-xs font-semibold text-gray-500 uppercase">Report Details</p>
+                        <p class="text-sm text-gray-600 truncate" title="{{ report.report_details }}">
+                            {{ report.report_details }}
+                        </p>
+                    </div>
+
+                    <!-- Date Filed (Desktop) -->
+                    <div class="hidden md:block text-left">
+                        <p class="text-xs font-semibold text-gray-500 uppercase">Date Filed</p>
+                        <p class="text-sm text-gray-700">{{ report.date_filed|date:"F d, Y" }}</p>
+                    </div>
+
+                    <!-- Status (Desktop) -->
+                    <div class="text-left md:text-center">
+                         <p class="md:hidden text-xs font-semibold text-gray-500 uppercase">Status</p>
+                         <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full 
+                            {% if report.status == 'New' %}bg-blue-100 text-blue-800
+                            {% elif report.status == 'Resolved' %}bg-green-100 text-green-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ report.get_status_display }}
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </a>
+        {% empty %}
+        <div class="text-center py-10 text-gray-500 border-2 border-dashed rounded-lg">
+            <i class="bi bi-journal-x text-4xl"></i>
+            <p class="mt-2 font-semibold">You have not filed any general reports yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+{% endblock %}

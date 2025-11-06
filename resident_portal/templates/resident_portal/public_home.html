@@ -1,0 +1,219 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Welcome - Barangay Addition Hills Case Management</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; color: #334155; }
+        .hero-section { background-image: radial-gradient(at 0% 0%, hsla(217, 89%, 61%, 0.2) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(287, 60%, 45%, 0.15) 0, transparent 50%); }
+        .hero-image-bg {
+            background-size: cover;
+            background-position: center;
+            background-image: url("{% static 'images/BRGYHALL.jpg' %}");
+        }
+        .how-it-works-bg {
+            background-size: cover;
+            background-position: center;
+            background-image: url("{% static 'images/adsv.jpg' %}");
+        }
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="antialiased">
+
+    <!-- HEADER / NAVBAR -->
+    <header x-data="{ mobileMenuOpen: false }" class="bg-white/80 backdrop-blur-lg shadow-sm sticky top-0 z-40">
+        <nav class="container mx-auto px-2 py-1 flex justify-between items-center">
+            
+            <!-- Logo -->
+            <a href="{% url 'resident_portal:public_home' %}" class="flex items-center space-x-3">
+                <img src="{% static 'images/barangay_seal.png' %}" class="img-fluid" style="max-width: 50px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4));" alt="Barangay Logo">
+                <span class="font-bold text-md text-slate-800">Barangay Addition Hills</span>
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center space-x-2">
+                <a href="{% url 'resident_portal:login' %}" class="px-5 py-2 text-xs font-medium text-slate-600 hover:text-blue-600 transition">Log In</a>
+                <a href="{% url 'resident_portal:signup' %}" class="px-5 py-2 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-md transition-transform transform hover:scale-105">Sign Up</a>
+            </div>
+
+            <!-- Hamburger Menu Button -->
+            <div class="md:hidden">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-slate-800 hover:text-blue-600">
+                    <i class="bi bi-list text-3xl"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu Drawer -->
+        <div x-show="mobileMenuOpen" 
+             @click.outside="mobileMenuOpen = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-4"
+             class="md:hidden"
+             style="display: none;">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="{% url 'resident_portal:login' %}" class="block px-2 py-1 rounded-sm text-sm font-medium text-slate-700 hover:text-white hover:bg-blue-600">Log In</a>
+                <a href="{% url 'resident_portal:signup' %}" class="block px-2 py-1 rounded-sm text-sm font-medium text-slate-700 hover:text-white hover:bg-blue-600">Sign Up</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="relative w-full min-h-screen flex items-center justify-center py-20 md:py-30 overflow-hidden">
+            <div class="absolute inset-0 z-0">
+                <img src="{% static 'images/BRGYHALL.jpg' %}" 
+                     alt="Barangay Addition Hills Community" 
+                     class="w-full h-full object-cover object-center">
+                <div class="absolute inset-0 bg-black opacity-50"></div>
+            </div>
+
+            <!-- Content ng hero section (text, buttons) -->
+            <div class="container mx-auto px-6 relative z-10 text-white text-center">
+                <!--<span class="text-white font-semibold uppercase tracking-wider">Barangay Addition Hills</span>-->
+                <h1 class="text-3xl md:text-6xl font-black mt-2 leading-tight">Your Concerns, Heard and Resolved.</h1>
+                <p class="mt-6 text-md">Easily file incident reports, complaints, and other concerns online. Our new Case Management System is here to serve you better.</p>
+                <div class="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="{% url 'resident_portal:login' %}" class="px-8 py-4 mt-4 text-base font-bold text-white bg-blue-700 hover:bg-blue-800 rounded-lg shadow-lg transition-transform transform hover:scale-105 inline-flex items-center justify-center h-full">
+                        <i class="bi bi-file-earmark-plus-fill mr-1"></i> File a Report Now
+                    </a>
+                    <a href="#how-it-works" class="px-8 py-4 mt-4 text-base font-bold text-white bg-black bg-opacity-50 hover:bg-opacity-75 rounded-lg shadow-lg transition-transform transform hover:scale-105 inline-flex items-center justify-center h-full">
+                        Learn How
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- HOW IT WORKS SECTION (with Animation) -->
+        <section id="how-it-works" class="py-20 md:py-28 bg-white overflow-hidden">
+            <div class="container mx-auto px-6">
+                <div x-data="{ shown: false }" x-intersect.once="shown = true" 
+                     :class="shown ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'"
+                     class="text-center mb-16 transition-all duration-700 ease-out">
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Get Resolved in 4 Easy Steps</h2>
+                    <p class="mt-4 text-sm text-slate-500 max-w-2xl mx-auto">Our system is designed to be simple, fast, and transparent.</p>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-16 items-center">
+                    <div class="space-y-10">
+                        <div x-data="{ shown: false }" x-intersect.once="setTimeout(() => { shown = true }, 100)" :class="shown ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'" class="flex items-start space-x-5 transition-all duration-500 ease-out"><div class="flex-shrink-0 h-16 w-16 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="bi bi-box-arrow-in-right text-3xl"></i></div><div><h3 class="text-sm font-bold text-slate-800">1. Log In or Create Account</h3><p class="mt-1 text-slate-600">Securely sign in or register a new account in minutes.</p></div></div>
+                        <div x-data="{ shown: false }" x-intersect.once="setTimeout(() => { shown = true }, 200)" :class="shown ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'" class="flex items-start space-x-5 transition-all duration-500 ease-out"><div class="flex-shrink-0 h-16 w-16 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="bi bi-file-earmark-plus-fill text-3xl"></i></div><div><h3 class="text-sm font-bold text-slate-800">2. File Your Report</h3><p class="mt-1 text-slate-600">Choose the type of concern and fill out the necessary details accurately.</p></div></div>
+                        <div x-data="{ shown: false }" x-intersect.once="setTimeout(() => { shown = true }, 300)" :class="shown ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'" class="flex items-start space-x-5 transition-all duration-500 ease-out"><div class="flex-shrink-0 h-16 w-16 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="bi bi-send-check-fill text-3xl"></i></div><div><h3 class="text-sm font-bold text-slate-800">3. Submit & Get Notified</h3><p class="mt-1 text-slate-600">Receive real-time updates on your case status via the portal.</p></div></div>
+                        <div x-data="{ shown: false }" x-intersect.once="setTimeout(() => { shown = true }, 400)" :class="shown ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'" class="flex items-start space-x-5 transition-all duration-500 ease-out"><div class="flex-shrink-0 h-16 w-16 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><i class="bi bi-calendar2-week-fill text-3xl"></i></div><div><h3 class="text-sm font-bold text-slate-800">4. View Schedules</h3><p class="mt-1 text-slate-600">Check your dashboard for any scheduled hearings or appointments.</p></div></div>
+                    </div>
+                    <div x-data="{ shown: false }" x-intersect.once="shown = true" 
+                         :class="shown ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'" 
+                         class="hidden lg:block transition-all duration-700 ease-out delay-300">
+    
+                        <div class="relative w-full h-full min-h-[500px] rounded-2xl shadow-lg overflow-hidden group">
+        
+                            <div class="absolute inset-0 how-it-works-bg transform group-hover:scale-110 transition-transform duration-500">
+                            </div>
+
+                            <div class="absolute inset-0 bg-gradient-to-br">
+                            </div>
+
+                            <div class="absolute inset-0 flex items-center justify-center p-8">
+                                <div class="text-center">
+                                    <!-- Pwede kang maglagay ng text dito kung gusto mo, o iwanang blangko 
+                                    <p class="font-semibold text-slate-600 bg-white/50 backdrop-blur-sm p-4 rounded-lg">
+                                        Our commitment is to provide a fast and transparent process for every resident.
+                                    </p>
+                                </div>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERVICES SECTION (with Animation) -->
+        <section id="services" class="py-20 bg-slate-50 overflow-hidden">
+            <div class="container mx-auto px-6 text-center" x-data="{ shown: false }" x-intersect.once="shown = true" :class="shown ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'" class="transition-all duration-700 ease-out">
+                <h2 class="text-3xl font-bold text-slate-800">Our Digital Services</h2>
+                <p class="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">We're bringing barangay services closer to you. Here's what you can do online.</p>
+                <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="p-3 border border-slate-200 rounded-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"><div class="inline-block p-4 bg-blue-100 text-blue-600 rounded-full mb-4"><i class="bi bi-shield-fill-check text-3xl"></i></div><h3 class="text-xl font-bold">Blotter & Complaints</h3><p class="mt-2 text-slate-500">File a formal complaint or blotter for record-keeping and resolution.</p></div>
+                    <div class="p-3 border border-slate-200 rounded-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"><div class="inline-block p-4 bg-green-100 text-green-600 rounded-full mb-4"><i class="bi bi-bell-fill text-3xl"></i></div><h3 class="text-xl font-bold">Stay Notified</h3><p class="mt-2 text-slate-500">Receive real-time updates on your case status and hearing schedules.</p></div>
+                    <div class="p-3 border border-slate-200 rounded-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"><div class="inline-block p-4 bg-purple-100 text-purple-600 rounded-full mb-4"><i class="bi bi-calendar-range-fill text-3xl"></i></div><h3 class="text-xl font-bold">Schedule Tracking</h3><p class="mt-2 text-slate-500">Easily view all your scheduled summons, mediations, and hearings.</p></div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <!-- DYNAMIC FOOTER -->
+    <footer class="bg-slate-800 text-slate-300 justify-center text-center">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="lg:col-span-1">
+                    <h3 class="font-bold text-lg text-white mb-2 uppercase">Case Management System</h3>
+                    <p class="text-sm text-slate-400">A digital initiative for a more responsive and accessible barangay service.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-white mb-4 uppercase">Barangay Hotlines</h3>
+                    <ul class="text-sm text-slate-400 space-y-3">
+                          {% for hotline in display_hotlines_list %}
+                        <li class="flex items-center">
+                        <i class="fas fa-phone-alt mr-3 text-lg text-blue-300"></i>
+                        <div><span class="block font-semibold text-slate-200">{{ hotline.name }}</span><span class="block">{{ hotline.number }}</span></div>
+                        </li>
+                        {% empty %}
+                        <li class="text-slate-500">No hotlines listed.</li>
+                            {% endfor %}
+                        </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-white mb-4 uppercase">Important Contacts</h3>
+                    <ul class="text-sm space-y-2">
+                        
+                        {% for contact in display_other_contacts %}
+                        <li>
+                            <div class="font-semibold text-slate-200">{{ contact.name }}</div>
+                            {% if contact.number %}
+                                <div class="text-slate-400 text-xs">Tel: {{ contact.number }}</div>
+                            {% endif %}
+                            {% if contact.email %}
+                                <div class="text-slate-400 text-xs">Email: {{ contact.email }}</div>
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="text-slate-500">No contacts listed.</li>
+                        {% endfor %}
+                
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-white mb-4 uppercase">Follow Us & Other Links</h3>
+                    <div class="flex space-x-4 mb-4">
+                        {% for link in display_other_links %}
+                            {% if link.icon_class and 'facebook' in link.name|lower or 'twitter' in link.name|lower %}
+                            <a href="{{ link.url }}" target="_blank" class="text-slate-400 hover:text-white text-2xl"><i class="{{ link.icon_class }}"></i></a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <ul class="text-sm space-y-2">
+                        {% for link in display_other_links %}
+                            {% if not link.icon_class or 'facebook' not in link.name|lower and 'twitter' not in link.name|lower %}
+                            <li><a href="{{ link.url }}" target="_blank" class="text-slate-400 hover:text-white flex items-center"><i class="bi bi-link-45deg mr-2"></i> {{ link.name }}</a></li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-12 border-t border-slate-700 pt-8 text-center text-sm text-slate-500">
+                <p>© {% now "Y" %} Barangay Addition Hills Case Management System. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,98 @@
+{% extends "official_portal/base_official.html" %}
+
+{% block official_title %}All General Reports{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border"
+     x-data="{ 
+         isModalOpen: false,
+         modalActionUrl: '',
+         modalRecordIdentifier: ''
+     }">
+    
+    <!-- HEADER SECTION -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 border-b border-gray-200 pb-4">
+        <div>
+            <h2 class="text-2xl lg:text-3xl font-extrabold text-gray-900">Filed Reports</h2>
+            <!-- <p class="text-sm text-gray-500 mt-1">A consolidated list of reports from residents and on-site filing.</p>-->
+        </div>
+        <form method="GET" class="mt-4 sm:mt-0 flex items-center space-x-2 w-full sm:w-auto">
+            <div class="relative flex-grow">
+                <i class="fas fa-search text-gray-400 absolute top-1/2 left-3 -translate-y-1/2 pointer-events-none"></i>
+                <input name="q" value="{{ search_query }}" type="text" placeholder="Search..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm w-full focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 transition-colors">Search</button>
+        </form>
+    </div>
+    
+    <!-- REPORTS TABLE -->
+    <div class="overflow-x-auto rounded-lg border">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Informant</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date Reported</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Report Details</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for record in records %}
+                <tr class="hover:bg-slate-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ record.informant.get_full_name }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ record.date_filed|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600 max-w-md truncate" title="{{ record.report_details }}">{{ record.report_details }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-full 
+                            {% if record.status == 'New' %}bg-blue-100 text-blue-800
+                            {% elif record.status == 'Resolved' %}bg-green-100 text-green-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ record.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-lg font-medium">
+                        <a href="{% url 'report_detail' record.pk %}" class="text-indigo-600 hover:text-indigo-500 p-2 rounded-full hover:bg-indigo-50" title="View Report Details"><i class="bi bi-eye-fill"></i></a>
+                        <button @click="isModalOpen = true; modalActionUrl = `{% url 'quick_update_report_status' record.pk %}`; modalRecordIdentifier = `report from {{ record.informant.get_full_name|escapejs }}`;" 
+                                class="text-yellow-500 hover:text-yellow-400 p-2 rounded-full hover:bg-yellow-50 ml-2" title="Quick Update Status">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-10 text-gray-500">No general reports found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- QUICK UPDATE STATUS MODAL (Kopya lang mula sa records_list.html) -->
+    <div x-show="isModalOpen" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+        <div @click="isModalOpen = false" class="fixed inset-0 bg-black bg-opacity-60"></div>
+        <div @click.outside="isModalOpen = false" class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <form :action="modalActionUrl" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900">Quick Update Status</h3>
+                    <p class="text-sm text-gray-500 mt-1">Updating status for <strong x-text="modalRecordIdentifier"></strong>.</p>
+                    <div class="mt-4">
+                        <label for="id_status_modal_report" class="block text-sm font-medium text-gray-700">New Status</label>
+                        <select name="status" id="id_status_modal_report" class="mt-1 w-full py-2 pl-3 pr-8 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm">
+                            {% for value, display in status_choices_reports %}<option value="{{ value }}">{{ display }}</option>{% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                    <button type="button" @click="isModalOpen = false" class="text-sm font-semibold py-2 px-4 rounded-md bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="text-sm font-semibold py-2 px-4 rounded-md bg-indigo-600 text-white shadow-sm hover:bg-indigo-500">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts_official %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}

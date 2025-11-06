@@ -1,0 +1,25 @@
+{% extends "official_portal/emails/_base_email.html" %}
+
+{% block email_title %}Your Account has been Activated!{% endblock %}
+
+{% block email_header %}Account Activated{% endblock %}
+
+{% block email_content %}
+<p style="font-size: 18px; font-weight: bold; margin: 0 0 20px 0;">Hi {{ user.first_name }},</p>
+
+<p style="font-size: 16px; line-height: 1.5;">Good news! Your account for the <strong>Barangay Addition Hills Case Management System</strong> has been reviewed and successfully activated by a barangay official.</p>
+
+<p style="font-size: 16px; line-height: 1.5; margin-top: 20px;">You can now log in using the email and password you registered with.</p>
+
+<!-- Call to Action Button -->
+<table style="width: 100%; border-spacing: 0; margin-top: 30px;">
+    <tr>
+        <td style="text-align: center;">
+            <a href="{% url 'manage_users' %}" target="_blank"
+               style="background-color: #0d6efd; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
+                Login to Your Account
+            </a>
+        </td>
+    </tr>
+</table>
+{% endblock %}

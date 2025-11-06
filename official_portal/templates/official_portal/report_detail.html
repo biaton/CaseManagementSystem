@@ -1,0 +1,145 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+{% block official_title %}Report Details{% endblock %}
+
+{% block extra_head_official %}
+<style>
+    .form-input { display: block; width: 100%; padding: 0.75rem; border: 1px solid #D1D5DB; border-radius: 0.5rem; }
+    @media print {
+        body * { visibility: hidden; }
+        #printable-paper, #printable-paper * { visibility: visible; }
+        #printable-paper { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; border: none !important; box-shadow: none !important; }
+        .no-print { display: none !important; }
+    }
+</style>
+{% endblock %}
+
+{% block official_content_main %}
+<div x-data="{ actionTaken: `{{ form.action_taken.value|default:''|escapejs }}` }">
+    <div class="flex flex-col lg:flex-row gap-8">
+        
+        <!-- LEFT SIDE: Report Summary & Actions -->
+        <div class="lg:w-1/2 bg-white p-6 rounded-2xl shadow-xl border">
+            <!-- Header -->
+            <div class="flex justify-between items-start border-b pb-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">General Report Details</h2>
+                    <p class="text-sm text-gray-500 mt-1">Filed on: {{ report.date_filed|date:"F d, Y, P" }}</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs text-gray-500">Status</p>
+                    <span class="px-3 py-1 text-sm font-semibold rounded-full 
+                        {% if report.status == 'New' %}bg-blue-100 text-blue-800
+                        {% elif report.status == 'Resolved' %}bg-green-100 text-green-800
+                        {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {{ report.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Details Grid -->
+            <div class="space-y-4 text-sm">
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <h3 class="font-bold text-base text-gray-700 mb-2">Informant Details</h3>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                        <dt class="font-semibold text-gray-600">Name:</dt><dd class="text-gray-800">{{ report.informant.get_full_name }}</dd>
+                        <dt class="font-semibold text-gray-600">Contact No.:</dt><dd class="text-gray-800">{{ report.informant_contact_number }}</dd>
+                    </dl>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-lg">
+                    <h3 class="font-bold text-base text-gray-700 mb-2">Report Summary</h3>
+                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                        <dt class="font-semibold text-gray-600">Date of Observation:</dt><dd class="text-gray-800">{{ report.date_of_incident|date:"F d, Y" }}</dd>
+                        <dt class="font-semibold text-gray-600 col-span-2">Location:</dt><dd class="text-gray-800 col-span-2">{{ report.location_of_incident }}</dd>
+                    </dl>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base text-gray-700">Narrative of Report</h3>
+                    <p class="mt-1 text-gray-700 bg-slate-50 p-4 rounded-lg leading-relaxed">{{ report.report_details|linebreaksbr }}</p>
+                </div>
+            </div>
+            
+            <!-- Action Form -->
+            <div class="mt-8 border-t-2 pt-6">
+                <h3 class="text-lg font-semibold mb-4 text-gray-800">Update Report Status</h3>
+                <form method="POST" action="{% url 'report_detail' report.pk %}">
+                    {% csrf_token %}
+                    <div class="space-y-4">
+                        <div>
+                            <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">New Status:</label>
+                            {{ form.status }}
+                        </div>
+                        <div>
+                            <label for="{{ form.action_taken.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Action Taken / Remarks:</label>
+                            <textarea name="{{ form.action_taken.name }}" id="{{ form.action_taken.id_for_label }}"
+                                      x-model="actionTaken" rows="4" class="form-input" 
+                                      placeholder="Describe the action taken..."></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-6">
+                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-green-700 transition-colors shadow-md">
+                            <i class="fas fa-check mr-2"></i>Update Status
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Printable Action Taken Report -->
+        <div class="lg:w-1/2">
+            <div class="flex justify-end mb-4 no-print">
+                <button onclick="window.print()" class="bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-800 shadow-md">
+                    <i class="fas fa-print mr-2"></i>Print Report
+                </button>
+            </div>
+            <div id="printable-paper" class="bg-white p-10 shadow-xl border font-serif text-sm">
+                <!-- Header -->
+                <div class="flex justify-between items-center border-b-2 border-black pb-4">
+                    <img src="{% static 'images/city_logo.png' %}" alt="Logo" class="img-fluid" style="max-width: 105px;">
+                    <div class="text-center">
+                        <p class="font-semibold">Republic of the Philippines</p>
+                        <h1 class="text-2xl font-bold tracking-wider">BARANGAY ADDITION HILLS</h1>
+                        <p>City of Mandaluyong</p>
+                    </div>
+                    <img src="{% static 'images/barangay_seal.png' %}" alt="Logo 2" class="img-fluid" style="max-width: 100px;">
+                </div>
+                <!-- Title -->
+                <h2 class="text-center text-3xl font-bold my-8 tracking-widest">ACTION TAKEN REPORT</h2>
+                <!-- Details -->
+                <div class="space-y-2 leading-loose">
+                    <p><strong>DATE:</strong> <span class="border-b border-dotted border-black px-4">{{ "now"|date:"F d, Y" }}</span></p>
+                    <p><strong>SUBJECT:</strong> <span class="border-b border-dotted border-black px-4">General Community Report</span></p>
+                    <p><strong>REFERENCE:</strong> <span class="border-b border-dotted border-black px-4">Report from {{ report.informant.get_full_name }} filed on {{ report.date_filed|date:"M d, Y" }}</span></p>
+                </div>
+                <div class="mt-6 text-justify indent-8 leading-relaxed space-y-4">
+                    <p>This report is to formally document the action taken by the Office of the Punong Barangay in response to a report filed concerning an observation at <span class="font-semibold">{{ report.location_of_incident }}</span> on or about <span class="font-semibold">{{ report.date_of_incident|date:"F d, Y" }}</span>.</p>
+                    
+                    <p class="font-bold uppercase pt-2">Summary of Original Report:</p>
+                    <blockquote class="p-4 border-l-4 border-gray-300 bg-gray-50 italic">
+                        "{{ report.report_details }}"
+                    </blockquote>
+                    
+                    <p class="font-bold uppercase pt-2">Action Taken by the Barangay:</p>
+                    <div class="p-4 border bg-gray-50 min-h-[8rem]">
+                        <p x-text="actionTaken || '[Action taken details will appear here as you type...]'"></p>
+                    </div>
+
+                    <p class="font-bold uppercase pt-2">Current Status of Report:</p>
+                     <p>As of this date, the status of this report is marked as <strong class="uppercase">{{ form.status.value|default:report.status }}</strong>.</p>
+                    
+                    <p class="mt-4">This certification is issued for documentation, reference, and for whatever official purpose it may serve.</p>
+                </div>
+                <!-- Signature -->
+                <footer class="mt-16 text-right">
+                    <div class="inline-block text-center">
+                        <p class="border-b-2 border-black inline-block px-12 font-semibold">{{ request.user.get_full_name|upper }}</p>
+                        <p class="font-semibold">Attesting Officer</p>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}

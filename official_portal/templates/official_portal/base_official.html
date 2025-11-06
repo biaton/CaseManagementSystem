@@ -1,0 +1,285 @@
+{% load static %}
+{% load official_extras %}
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <title>{% block official_title %}Admin Panel{% endblock official_title %} - Barangay Addition Hills CMS</title>
+    
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        body { font-family: "Inter", sans-serif; }
+        aside::-webkit-scrollbar { width: 5px;}
+        aside::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); }
+        aside::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.3); border-radius: 3px; }
+        aside::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.5); }
+
+        .user-dropdown-menu { display: none; position: absolute; right: 0; top: calc(100% + 0.5rem); background-color: white; min-width: 200px; box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.15); z-index: 50; border-radius: 0.375rem; border: 1px solid #e5e7eb; }
+        .user-dropdown.active .user-dropdown-menu { display: block; }
+        .user-dropdown-menu a, .user-dropdown-menu button { color: #374151; padding: 0.625rem 1rem; text-decoration: none; display: flex; align-items: center; font-size: 0.875rem; width: 100%; text-align: left; }
+        .user-dropdown-menu a:hover, .user-dropdown-menu button:hover { background-color: #f3f4f6; }
+        .user-dropdown-menu .fas { color: #6b7280; margin-right: 0.625rem; width: 1.1rem; }
+
+        .nav-tab-button { border-radius: .400rem; padding-left: 1.5rem; padding-right: 1.5rem; padding-top: 0.3rem; padding-bottom: 0.3rem; font-weight: 500; color: white; transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out; }
+        .nav-tab-button:hover { background-color: #6B6BFF; }
+        .nav-tab-button.active { background-color: rgb(236, 237, 255); color: #4B4BFF; font-weight: 1000; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);  }
+        
+        .nav-icon-action-button { background-color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border-radius: .500rem; padding: 1rem; color: #4B4BFF; transition: background-color 0.2s, color 0.2s; }
+        .nav-icon-action-button:hover { background-color: #e0e0ff; }
+        .nav-icon-action-button-header { background-color: white; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); border-radius: .300rem; padding: 1rem; color: #4B4BFF; transition: background-color 0.2s, color 0.2s; }
+        .nav-icon-action-button-header:hover { background-color: #e0e0ff; }
+
+        /* Django Messages Styling (Tailwind-like) */
+        .django-message { margin-bottom: 1rem; padding: 1rem; border-radius: 0.375rem; display: flex; align-items: flex-start; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06); }
+        .django-message.success { background-color: #ECFDF5; border-left: 4px solid #10B981; color: #065F46; }
+        .django-message.error { background-color: #FEF2F2; border-left: 4px solid #EF4444; color: #991B1B; }
+        .django-message.warning { background-color: #FFFBEB; border-left: 4px solid #F59E0B; color: #92400E; }
+        .django-message.info { background-color: #EFF6FF; border-left: 4px solid #3B82F6; color: #1E40AF; }
+        .django-message i { margin-right: 0.75rem; margin-top: 0.125rem; }
+        
+        .flex.min-h-screen {
+            display: flex;
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        aside.sticky {
+            position: sticky; 
+            top: 0; 
+            height: 100vh; 
+            overflow-y: auto; 
+            z-index: 1030; 
+        }
+
+        main.flex-1 {
+            flex-grow: 1;
+            overflow-y: auto; /* Allow scrolling for the main content area */
+            padding: 0; /* Remove default padding for better control of children */
+        }
+
+        main .main-header-wrapper  {
+            position: sticky;
+            top: 0;
+            z-index: 1020; /* Lower than sidebar, higher than other main content */
+            background-color: #f3f4f6; /* Ensure it has a background when sticky */
+            padding: 0.75rem 1rem;
+        }
+
+        main .nav-actions-wrapper {
+            position: sticky;
+            top: 81px; /* Height of the header */
+            z-index: 1010; /* Lower than header, higher than other main content */
+            background-color: #f3f4f6; /* Ensure it has a background when sticky */
+            padding: 0.75rem 1rem;
+            margin-top: 1px;
+        }
+
+        main .content-block {
+            padding: 1rem; /* Padding for the main content area */
+        }
+        .official-card-gradient-border {
+            background: linear-gradient(135deg, #4B4BFF, #6B6BFF);
+            padding: 2px; /* Thickness of the gradient border */
+            border-radius: 1.5rem; /* Match the inner card's border radius */
+        }
+        .official-card-gradient-border > div {
+            border-radius: 1.25rem; /* Match the inner card's border radius minus padding */
+            background-color: white; /* Inner card background */
+        }
+    </style>
+    {% block extra_head_official %}{% endblock extra_head_official %}
+</head>
+
+<body class="bg-gray-100 text-gray-800">
+    <div class="flex min-h-screen align-items-start">
+        <!-- Sidebar -->
+        <aside class="bg-gradient-to-b from-[#4B4BFF] to-[#6B6BFF] w-50 flex-shrink-0 flex flex-col items-center py-3 text-white select-none sticky top-0 h-screen">
+            <div class="text-center mb-4 px-4">
+                <!-- Title -->
+                <p class="text-[10px] font-semibold tracking-wider text-blue-200">Case Management System</p>
+                <h1 class="font-black text-2xl text-white tracking-tighter -mt-1">ADMIN</h1> 
+
+                <hr class="border-t-2 border-white/20 my-4">
+
+                <div>
+                    <p class="font-bold text-[11px] text-white leading-tight truncate">
+                        {{ request.user.get_full_name|default:request.user.email|capfirst }}
+                    </p>
+                    <p class="mt-.1 text-[10px] font-medium bg-white/90 text-indigo-700 rounded-full px-3 py-1 inline-flex items-center shadow-sm">
+
+                    {% if request.user.is_superuser %}
+                        <i class="bi bi-star-fill text-yellow-500 mr-1.5"></i> 
+                        <span>Super Administrator</span>
+                    {% else %}
+                        {# --- DITO ANG DYNAMIC ICON AT POSITION --- #}
+                        <i class="{{ request.user.barangay_position|position_icon }} mr-1.5"></i>
+                        <span>{{ request.user.barangay_position|default:"Official Staff" }}</span>
+                    {% endif %}
+                    </p>
+                </div>
+            </div>
+
+            <img src="{% static 'images/barangay_seal.png' %}" class="img-fluid -mb-2" style="max-width: 78px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4));" alt="Barangay Logo">
+            <img src="{% static 'images/city_logo.png' %}" class="img-fluid mb-3" style="max-width: 81px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4));" alt="City Logo">
+
+            <div class="text-center text-xs font-bold leading-tight space-y-1.5 max-w-[14rem] px-2">
+                <p class="border-b border-blue-400 border-opacity-50 pb-1.5 mb-2">
+                    <span class="block text-sm">BARANGAY OFFICIALS</span>
+                </p>
+                {% for official in sidebar_officials %}
+                    <div class="py-1">
+                        <p class="font-semibold text-white" style="font-size: 10px;">{{ official.full_name }}</p>
+                        <p class="font-normal text-blue-200" style="font-size: 8px;">{{ official.position }}</p>
+                    </div>
+                {% empty %}
+                    <p class="text-center text-blue-200 text-xs py-2">No officials to display.</p>
+                {% endfor %}
+            </div>
+            <div class="mt-0 text-center text-[10px] text-white pt-6 position-sticky">
+                <p>© {% now "Y" %} Barangay Addition Hills</p>
+            </div>
+        </aside>
+
+        <!-- Main content -->
+        <main class="flex-1 p-6 overflow-y-auto">
+            <div class="main-header-wrapper">
+                <header class="flex flex-wrap items-center justify-between -mb-3 gap-1">
+                    <div class="flex items-center gap-3">
+                        <img src="{% static 'images/barangay_seal.png' %}" class="img-fluid" style="max-width: 50px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4));" alt="Barangay Logo">
+                        <h1 class="font-bold text-md text-gray-700">Barangay Addition Hills</h1>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 sm:gap-4 relative">
+    
+                        <a href="{% url 'official_notification_list' %}" 
+                           aria-label="Notifications" title="Notifications" 
+                           class="relative p-1 bg-white shadow-lg rounded-md p-2 shadow-lg text-blue-600 hover:bg-gray-100">
+                            
+                            <i class="fas fa-bell fa-md"></i>
+                            
+                            <!-- Badge para sa unread count -->
+                            {% if official_unread_count > 0 %}
+                            <span class="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-xs text-white rounded-full flex items-center justify-center border-2 border-white">
+                                {{ official_unread_count }}
+                            </span>
+                            {% endif %}
+                        </a>                
+                        
+                        <div class="relative user-dropdown">
+                            <button id="user-menu-button" aria-label="User profile menu"
+                                class="bg-[#4B4BFF] shadow-lg rounded-lg p-3 text-white hover:bg-[#3a3ad1] transition flex items-center">
+                                <i class="fas fa-user-circle fa-md"></i>
+                                <i class="fas fa-chevron-down fa-xs ml-1.5"></i>
+                            </button>
+                            <div id="user-dropdown-menu" class="user-dropdown-menu">
+                                <div class="px-4 py-3 border-b border-gray-200">
+                                    <p class="text-sm font-medium text-gray-900 truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
+                                    <p class="text-xs text-gray-500 truncate">{{ request.user.email|default:"N/A" }}</p>
+                                </div>
+                                <a href="{% url 'official_profile' %}"><i class="fas fa-user-edit"></i> My Profile</a>
+                                <a href="{% url 'official_change_password' %}"><i class="fas fa-key"></i> Change Password</a>
+                                <form method="POST" action="{% url 'official_logout' %}" class="w-full">
+                                    {% csrf_token %}
+                                    <button type="submit" class="hover:bg-red-50 hover:text-red-600">
+                                        <i class="fas fa-sign-out-alt"></i> Sign Out
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            </div>
+
+            <div class="nav-actions-wrapper">
+                <div class="flex flex-col lg:flex-row items-center justify-start gap-8 mb-1 mt-0.1 lg:mt-0">
+                    <nav class="flex flex-wrap gap-8 gap-x-2 gap-y-1 sm:gap-x-10 bg-[#7B7BFF] rounded-xl px-6 py-3 text-white font-semibold select-none w-full lg:w-auto">
+    
+                        <a href="{% url 'official_dashboard' %}" class="nav-tab-button {% if request.resolver_match.url_name == 'official_dashboard' %}active{% endif %}">DASHBOARD</a>
+                        
+                        {% if request.user.is_superuser or request.user|has_group:'Barangay Kagawad' or request.user|has_group:'SK Chairperson' or request.user|has_group:'Barangay Secretary' or request.user|has_group:'Punong Barangay' or request.user|has_group:'Barangay Treasurer' %}
+                        <a href="{% url 'manage_users' %}" class="nav-tab-button {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}">USERS</a>
+                        <a href="{% url 'records_list' %}" class="nav-tab-button {% if request.resolver_match.url_name == 'records_list' %}active{% endif %}">RECORDS</a> 
+                        <a href="{% url 'incident_logs' %}" class="nav-tab-button {% if request.resolver_match.url_name == 'incident_logs' %}active{% endif %}">INCIDENT DETAILS</a> 
+                        {% endif %}
+    
+                        {% if request.user|has_group:'Chief Tanod' or request.user|has_group:'Barangay Tanod' or request.user|has_group:'Lupong Tagapamayapa' or request.user|has_group:'Staff' %}
+                        <a href="{% url 'onsite_reports:hub' %}" class="nav-tab-button {% if request.resolver_match.app_name == 'onsite_reports' %}active{% endif %}">REPORTS</a>
+                        {% endif %}
+    
+                    </nav>
+                    <div class="flex flex-wrap gap-12 sm:gap-3 items-center w-full lg:w-auto justify-center sm:justify-start">
+                        <a href="{% url 'reports_analytics:hub' %}" aria-label="Reports & Analytics" title="Reports & Analytics" class="nav-icon-action-button"><i class="bi bi-file-earmark-bar-graph-fill fs-5 fa-md"></i></a>
+                        <a href="{% url 'announcements:list' %}" title="Create Announcement" class="nav-icon-action-button"><i class="bi bi-megaphone-fill fs-5 fa-md"></i></a>
+                         {% if request.user.is_superuser or request.user|has_group:'Barangay Kagawad' or request.user|has_group:'SK Chairperson' or request.user|has_group:'Barangay Secretary' or request.user|has_group:'Punong Barangay' or request.user|has_group:'Barangay Treasurer' %}
+                        <a href="{% url 'system_settings:manage_lupon_schedule' %}" title="Lupon Schedule" class="nav-icon-action-button"><i class="bi bi-calendar2-week fs-5 fa-md"></i></a>
+                        <a href="{% url 'add_official' %}" title="Add Staff/Admin" class="nav-icon-action-button"><i class="bi bi-person-plus-fill fs-5 fa-lg"></i></a>
+                        <a href="{% url 'system_settings:hub' %}" aria-label="System Settings" title="Settings" class="nav-icon-action-button"><i class="bi bi-gear-fill fs-5 fa-md"></i></a>
+                        <a href="{% url 'audit_trail' %}" aria-label="Audit Logs" title="Logs" class="nav-icon-action-button"><i class="bi bi-journal-text fs-5 fa-md"></i></a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-block">
+            {% if messages %}
+            <div class="mb-4 space-y-2">
+                {% for message in messages %}
+                <div class="django-message {{ message.tags }}" role="alert">
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}<i class="fas fa-check-circle"></i>
+                    {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}<i class="fas fa-times-circle"></i>
+                    {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}<i class="fas fa-exclamation-triangle"></i>
+                    {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+                    <div class="ml-3 flex-1"><p class="text-sm font-medium">{{ message }}</p></div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% block official_content_main %}
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h2 class="text-2xl font-semibold text-gray-700">Welcome to the Admin Dashboard</h2>
+                <p class="mt-2 text-gray-600">Select an option from the menu to manage your barangay's system.</p>
+            </div>
+            {% endblock official_content_main %}
+            </div>
+        </main>
+    </div>
+
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        // User Dropdown Menu Toggle
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userDropdownMenu = document.getElementById('user-dropdown-menu');
+        if (userMenuButton && userDropdownMenu) {
+            userMenuButton.addEventListener('click', function (event) {
+                event.stopPropagation();
+                const parentDropdown = userDropdownMenu.closest('.user-dropdown'); // Make sure parent has .user-dropdown
+                parentDropdown.classList.toggle('active');
+                userMenuButton.setAttribute('aria-expanded', parentDropdown.classList.contains('active').toString());
+            });
+            document.addEventListener('click', function (event) {
+                const parentDropdown = userDropdownMenu.closest('.user-dropdown');
+                if (parentDropdown && parentDropdown.classList.contains('active') &&
+                    !userMenuButton.contains(event.target) && !userDropdownMenu.contains(event.target)) {
+                    parentDropdown.classList.remove('active');
+                    userMenuButton.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            // Para gumana, kailangan natin i-add ang data-bs-toggle attribute
+            tooltipTriggerEl.setAttribute('data-bs-toggle', 'tooltip');
+        })
+    </script>
+    {% block extra_scripts_official %}{% endblock extra_scripts_official %}
+</body>
+
+</html>

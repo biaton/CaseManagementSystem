@@ -1,0 +1,106 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+{% block official_title %}Manage Contacts{% endblock %}
+
+{% block extra_head_official %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>.form-input{display:block;width:100%;padding:.5rem .75rem;border:1px solid #d1d5db;border-radius:.375rem;}.form-input:focus{outline:2px solid transparent;outline-offset:2px;border-color:#4f46e5;box-shadow:0 0 0 1px #4f46e5;}</style>
+{% endblock %}
+
+{% block official_content_main %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" x-data="{ isDeleteModalOpen: false, deleteUrl: '', deleteIdentifier: '' }">
+    
+    <!-- LEFT SIDE: Add/Edit Form -->
+    <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-lg shadow-md border sticky top-24">
+            {% if contact_to_edit %}
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Contact</h3>
+                <form method="POST" action="{% url 'system_settings:edit_contact' contact_to_edit.pk %}" class="space-y-4">
+            {% else %}
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Add New Contact</h3>
+                <form method="POST" action="{% url 'system_settings:manage_contacts' %}" class="space-y-4">
+            {% endif %}
+                {% csrf_token %}
+                <div><label class="text-sm font-medium">{{ form.name.label }}</label>{{ form.name }}</div>
+                <div><label class="text-sm font-medium">{{ form.number.label }}</label>{{ form.number }}</div>
+                <div><label class="text-sm font-medium">{{ form.email.label }}</label>{{ form.email }}</div>
+                <div><label class="text-sm font-medium">{{ form.address.label }}</label>{{ form.address }}</div>
+                
+                {% if contact_to_edit %}
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Update Contact</button>
+                        <a href="{% url 'system_settings:manage_contacts' %}" class="w-full text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</a>
+                    </div>
+                {% else %}
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Add Contact</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Table of Contacts -->
+    <div class="lg:col-span-2">
+        <div class="bg-white p-6 rounded-lg shadow-md border">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Current Contacts Directory</h3>
+            <div class="overflow-x-auto rounded-lg border">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase">Contact Info</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for contact in contacts %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">{{ contact.name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <p>{{ contact.number }}</p>
+                                <p class="text-gray-500">{{ contact.email }}</p>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center space-x-4 text-lg">
+                                <a href="{% url 'system_settings:edit_contact' contact.pk %}" class="text-indigo-600 hover:text-indigo-500" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                <button @click="isDeleteModalOpen = true; deleteUrl = `{% url 'system_settings:delete_contact' contact.pk %}`; deleteIdentifier = '{{ contact.name|escapejs }}';"
+                                        class="text-red-600 hover:text-red-500" title="Delete"><i class="bi bi-trash3-fill"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center py-6">No contacts listed yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- DELETE CONFIRMATION MODAL Section -->
+    <!-- ======================================================================= -->
+    <div x-show="isDeleteModalOpen" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+        <div @click="isDeleteModalOpen = false" class="fixed inset-0 bg-black bg-opacity-60"></div>
+        <div @click.outside="isDeleteModalOpen = false" class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <form :action="deleteUrl" method="POST">
+                {% csrf_token %}
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mt-4">Delete contact</h3>
+                    <p class="text-sm text-gray-500 mt-2">
+                        Are you sure you want to delete contact <strong x-text="deleteIdentifier"></strong>? 
+                        This action cannot be undone.
+                    </p>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                    <button type="button" @click="isDeleteModalOpen = false" class="text-sm font-semibold py-2 px-4 rounded-md bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="text-sm font-semibold py-2 px-4 rounded-md bg-red-600 text-white shadow-sm hover:bg-red-500">
+                        Yes, Delete It
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<style>.btn-secondary{font-size:0.875rem;font-weight:600;padding:.5rem 1rem;border-radius:.375rem;background-color:#fff;color:#374151;border:1px solid #d1d5db;}.btn-danger{font-size:0.875rem;font-weight:600;padding:.5rem 1rem;border-radius:.375rem;background-color:#dc2626;color:#fff;}</style>
+{% endblock %}

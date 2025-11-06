@@ -1,0 +1,90 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+{% block official_title %}Manage Announcements{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border"
+     x-data="{
+         isDeleteModalOpen: false,
+         deleteUrl: '',
+         deleteIdentifier: ''
+     }">
+    
+    <!-- HEADER SECTION -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 border-b border-gray-200 pb-5">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-900">Manage Announcements</h2>
+            <p class="text-sm text-gray-500 mt-1">A list of all published news and updates for residents.</p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'announcements:create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg inline-flex items-center text-sm transition-colors shadow-sm">
+                <i class="fas fa-plus-circle mr-2"></i>Create New Announcement
+            </a>
+        </div>
+    </div>
+
+    <!-- ANNOUNCEMENTS TABLE -->
+    <div class="overflow-x-auto rounded-lg border">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Title</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Author</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date Published</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for announcement in announcements %}
+                <tr class="hover:bg-slate-50/50">
+                    <td class="px-6 py-4 whitespace-nowrap"><p class="text-sm font-semibold text-gray-900">{{ announcement.title|truncatewords:8 }}</p></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ announcement.author.get_full_name|default:"-" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ announcement.date_published|date:"M d, Y, P" }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        {% if announcement.is_published %}
+                            <span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-green-100 text-green-800">Published</span>
+                        {% else %}
+                            <span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-gray-200 text-gray-800">Draft</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-lg font-medium">
+                        <a href="{% url 'resident_portal:resident_announcement_detail' announcement.pk %}" target="_blank" class="text-sky-600 hover:text-sky-500" title="View on Site"><i class="bi bi-box-arrow-up-right"></i></a>
+                        <a href="{% url 'announcements:edit' announcement.pk %}" class="text-indigo-600 hover:text-indigo-500 ml-4" title="Edit Announcement"><i class="bi bi-pencil-square"></i></a>
+                        <button @click="isDeleteModalOpen = true; deleteUrl = `{% url 'announcements:delete' announcement.pk %}`; deleteIdentifier = `{{ announcement.title|escapejs }}`;"
+                                class="text-red-500 hover:text-red-400 ml-4" title="Delete">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center py-10 text-gray-500">No announcements found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div x-show="isDeleteModalOpen" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display: none;">
+        <div @click="isDeleteModalOpen = false" class="fixed inset-0 bg-black bg-opacity-60"></div>
+        <div @click.outside="isDeleteModalOpen = false" class="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden transform transition-all">
+            <form :action="deleteUrl" method="POST">
+                {% csrf_token %}
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100"><i class="fas fa-exclamation-triangle text-red-600 text-xl"></i></div>
+                    <h3 class="text-lg font-semibold text-gray-900 mt-4">Delete Announcement</h3>
+                    <p class="text-sm text-gray-500 mt-2">Are you sure you want to delete the announcement "<strong x-text="deleteIdentifier"></strong>"? This action cannot be undone.</p>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                    <button type="button" @click="isDeleteModalOpen = false" class="text-sm font-semibold py-2 px-4 rounded-md bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="text-sm font-semibold py-2 px-4 rounded-md bg-red-600 text-white shadow-sm hover:bg-red-500">Yes, Delete It</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts_official %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}

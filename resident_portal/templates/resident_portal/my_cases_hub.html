@@ -1,0 +1,30 @@
+{% extends "resident_portal/base_resident.html" %}
+{% block title %}My Cases Hub{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md border">
+    <!-- HEADER -->
+    <div class="text-center border-b border-gray-200 pb-5 mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">My Reports</h1>
+        <p class="mt-2 text-md text-gray-500">Track and manage all your filed cases and reports from here.</p>
+    </div>
+
+    <!-- HUB BUTTONS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Blotter Cases Card -->
+        <a href="{% url 'resident_portal:my_blotters_list' %}" class="group block p-8 bg-blue-50 text-center rounded-2xl hover:bg-blue-100 border-2 border-transparent hover:border-blue-500 transition-all duration-300 transform hover:-translate-y-1">
+            <i class="bi bi-shield-fill-check text-6xl text-blue-600"></i>
+            <h3 class="mt-4 text-2xl font-bold text-gray-800">Formal Blotter Cases</h3>
+            <p class="mt-1 text-sm text-gray-500">View all formal complaints you have filed.</p>
+            <span class="mt-4 inline-block bg-blue-600 text-white text-lg font-bold w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">{{ blotter_count }}</span>
+        </a>
+        <!-- General Reports Card -->
+        <a href="{% url 'resident_portal:my_reports_list' %}" class="group block p-8 bg-green-50 text-center rounded-2xl hover:bg-green-100 border-2 border-transparent hover:border-green-500 transition-all duration-300 transform hover:-translate-y-1">
+            <i class="bi bi-journal-text text-6xl text-green-600"></i>
+            <h3 class="mt-4 text-2xl font-bold text-gray-800">General Reports</h3>
+            <p class="mt-1 text-sm text-gray-500">View all your general concerns and reports.</p>
+            <span class="mt-4 inline-block bg-green-600 text-white text-lg font-bold w-16 h-16 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">{{ report_count }}</span>
+        </a>
+    </div>
+</div>
+{% endblock %}

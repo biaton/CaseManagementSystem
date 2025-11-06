@@ -1,0 +1,132 @@
+{% extends "official_portal/base_official.html" %}
+
+{% block official_title %}Resident Profile: {{ resident.get_full_name }}{% endblock %}
+
+{% block official_content_main %}
+<div class="flex flex-col lg:flex-row gap-8">
+    
+    <!-- LEFT SIDE: Resident Profile Details -->
+    <div class="lg:w-1/3 bg-white p-6 rounded-2xl shadow-lg border self-start">
+        <div class="text-center border-b pb-6">
+            <i class="bi bi-person-circle text-7xl text-gray-400"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mt-4">{{ resident.get_full_name }}</h2>
+            <p class="text-sm text-gray-500">{{ resident.email }}</p>
+            {% if resident.is_active %}
+                <span class="mt-2 inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Active</span>
+            {% else %}
+                <span class="mt-2 inline-flex items-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">Inactive</span>
+            {% endif %}
+        </div>
+        
+        <div class="mt-6 space-y-4 text-sm">
+            <h3 class="font-semibold text-gray-700 uppercase tracking-wider">Contact Information</h3>
+            <div>
+                <p class="font-medium text-gray-500">Phone Number</p>
+                <p class="text-gray-800">{{ resident.phone_number|default:"Not Provided" }}</p>
+            </div>
+            <div>
+                <p class="font-medium text-gray-500">Address</p>
+                <p class="text-gray-800">{{ resident.address|default:"Not Provided" }}</p>
+            </div>
+        </div>
+
+        <div class="mt-6 border-t pt-6 space-y-4 text-sm">
+            <h3 class="font-semibold text-gray-700 uppercase tracking-wider">Personal Details</h3>
+            <div>
+                <p class="font-medium text-gray-500">Gender</p>
+                <p class="text-gray-800">{{ resident.gender|default:"Not Provided" }}</p>
+            </div>
+            <div>
+                <p class="font-medium text-gray-500">Birthday</p>
+                <p class="text-gray-800">{{ resident.birthday|date:"F d, Y"|default:"Not Provided" }}</p>
+            </div>
+        </div>
+
+        <div class="mt-6 border-t pt-6 space-y-2">
+            <h3 class="font-semibold text-gray-700 uppercase tracking-wider">Uploaded ID</h3>
+            {% if resident.id_image %}
+                <button @click="isIdModalOpen = true; idImageUrl = '{{ resident.id_image.url }}'" class="block w-full">
+                    <img src="{{ resident.id_image.url }}" alt="Resident ID" 
+                         class="rounded-lg w-full object-cover border-2 border-gray-200 hover:border-blue-500 transition-all cursor-pointer">
+                </button>
+                <p class="text-xs text-center text-gray-500">Click image to enlarge</p>
+            {% else %}
+                <div class="p-4 text-center bg-gray-100 rounded-lg">
+                    <p class="text-sm text-gray-500">No ID photo uploaded.</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="mt-6 border-t pt-6">
+             <a href="{% url 'manage_users' %}" class="block w-full text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">
+                Back to User List
+            </a>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Case History -->
+    <div class="lg:w-2/3 space-y-8">
+        <!-- Blotter Cases Table -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg border">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Filed Blotter Cases ({{ filed_blotters.count }})</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Case ID</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date Filed</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for blotter in filed_blotters %}
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold">{{ blotter.blotter_id }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm">{{ blotter.date_filed|date:"M d, Y" }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap"><span class="px-2 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-800">{{ blotter.get_status_display }}</span></td>
+                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                <a href="{% url 'record_detail' blotter.pk %}" class="text-indigo-600 hover:underline text-sm">View</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center py-4 text-gray-500">No blotter cases filed.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- General Reports Table -->
+        <div class="bg-white p-6 rounded-2xl shadow-lg border">
+             <h3 class="text-xl font-bold text-gray-800 mb-4">Filed General Reports ({{ filed_reports.count }})</h3>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Date Filed</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for report in filed_reports %}
+                        <tr>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm">{{ report.date_filed|date:"M d, Y" }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap text-sm max-w-sm truncate">{{ report.report_details }}</td>
+                            <td class="px-4 py-3 whitespace-nowrap"><span class="px-2 py-1 text-xs font-bold rounded-full bg-yellow-100 text-yellow-800">{{ report.get_status_display }}</span></td>
+                            <td class="px-4 py-3 whitespace-nowrap text-center">
+                                <a href="{% url 'report_detail' report.pk %}" class="text-indigo-600 hover:underline text-sm">View</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="text-center py-4 text-gray-500">No general reports filed.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

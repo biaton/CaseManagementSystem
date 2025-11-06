@@ -1,0 +1,16 @@
+{% extends "official_portal/emails/_base_email.html" %}
+
+{% block email_title %}Case Status Update: {{ case.blotter_id }}{% endblock %}
+
+{% block email_header %}Case Status Update{% endblock %}
+
+{% block email_content %}
+<p style="font-size: 18px; font-weight: bold; margin: 0 0 20px 0;">Hi {{ user.first_name }},</p>
+<p style="font-size: 16px; line-height: 1.5;">This is to inform you of an update regarding your case, <strong>{{ case.blotter_id }}</strong>.</p>
+<div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+    <p style="margin: 0 0 5px 0;"><strong>New Status:</strong> <span style="font-weight: bold; color: #0d6efd;">{{ new_status }}</span></p>
+    <p style="margin: 0;"><strong>Remarks from Official:</strong></p>
+    <p style="margin-top: 5px; font-style: italic;">"{{ remarks }}"</p>
+</div>
+<p style="font-size: 16px; line-height: 1.5;">Please log in to your portal to view the complete case history.</p>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "resident_portal/base_resident.html" %}
+{% load static %}
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="bg-white p-4 sm:p-6 md:p-8 rounded-lg shadow-md border">
+    
+    <!-- HEADER -->
+    <div class="flex items-center justify-between mb-8 border-b pb-5">
+        <h1 class="text-3xl font-bold text-gray-900">Notifications</h1>
+    </div>
+
+    <!-- NOTIFICATION LIST -->
+    <div class="flow-root">
+        <ul role="list" class="-mb-8">
+            {% for notif in notifications %}
+            <li>
+                <div class="relative pb-8">
+                    <!-- Vertical line -->
+                    {% if not forloop.last %}
+                        <span class="absolute left-6 top-6 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                    {% endif %}
+
+                    <!-- ITO ANG MAY MALAKING PAGBABAGO -->
+                    <div class="relative flex items-start space-x-4">
+                        
+                        <!-- Icon and Logo Combo (Mas Malaki na) -->
+                        <div class="relative flex-shrink-0">
+                            <div class="relative h-20 w-20 flex items-center justify-center bg-white rounded-full ring-4 ring-white">
+                                <img class="h-16 w-16" src="{% static 'images/barangay_seal.png' %}" alt="Brgy. Seal">
+                            </div>
+
+                            <!-- Dynamic Icon sa baba, kanan -->
+                            <span class="absolute -bottom-1 -right-1 bg-white rounded-full p-1 shadow">
+                                {% if 'scheduled' in notif.message|lower %}
+                                    <span class="h-6 w-6 bg-green-100 text-green-600 flex items-center justify-center rounded-full">
+                                        <i class="fas fa-calendar-check text-xs"></i>
+                                    </span>
+                                {% elif 'updated' in notif.message|lower %}
+                                    <span class="h-6 w-6 bg-blue-100 text-blue-600 flex items-center justify-center rounded-full">
+                                        <i class="fas fa-info-circle text-xs"></i>
+                                    </span>
+                                {% else %}
+                                     <span class="h-6 w-6 bg-gray-100 text-gray-600 flex items-center justify-center rounded-full">
+                                        <i class="fas fa-bell text-xs"></i>
+                                    </span>
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <!-- Notification Content -->
+                        <div class="min-w-0 flex-1 py-1">
+
+                            <a href="{% if notif.related_report %}
+                                            {% url 'resident_portal:resident_report_detail' notif.related_report.pk %}
+                                        {% elif notif.related_blotter %}
+                                            {% url 'resident_portal:resident_case_detail' notif.related_blotter.pk %}
+                                        {% else %}
+                                            #{% comment %}Pwede mong palitan ito ng isang general notification link kung meron ka{% endcomment %}
+                                        {% endif %}"
+                                class="block p-4 rounded-lg transition-all duration-200
+                                        {% if not notif.is_read %}bg-blue-50 hover:bg-blue-100 border border-blue-300 shadow-sm{% else %}bg-gray-50 hover:bg-gray-200{% endif %}">
+                                <p class="text-sm text-gray-800 leading-relaxed">{{ notif.message }}</p>
+                                <p class="text-xs text-gray-500 mt-2">{{ notif.timestamp|timesince }} ago</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+            {% empty %}
+            <div class="text-center py-16 text-gray-500">
+                <i class="fas fa-bell-slash text-5xl"></i>
+                <p class="mt-4 font-semibold">You have no notifications yet.</p>
+                <p class="text-sm">We'll let you know when there are new updates.</p>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

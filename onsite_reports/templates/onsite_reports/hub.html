@@ -1,0 +1,77 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+
+{% block official_title %}On-Site Reporting Hub{% endblock %}
+
+{% block extra_head_official %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-6 rounded-lg shadow-md border">
+    
+    <!-- PAGE HEADER -->
+    <div class="text-center border-b border-gray-200 pb-5 mb-6">
+        <h2 class="text-3xl font-bold text-gray-900">Physical Reports</h2>
+        <p class="mt-1 text-sm text-gray-500">Select a category to see more options.</p>
+    </div>
+
+    {# --- DITO ANG ALPINE.JS MAGIC --- #}
+    <div x-data="{ activeMenu: '' }" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- CARD 1: Create Record -->
+        <div class="rounded-xl transition-all duration-300" 
+            :class="{ 'bg-blue-50 border-2 border-blue-500 shadow-xl': activeMenu === 'create', 'bg-gray-100 hover:bg-gray-200': activeMenu !== 'create' }">
+            
+            <!-- Main Clickable Area -->
+            <button @click="activeMenu = (activeMenu === 'create' ? '' : 'create')" class="w-full p-6 text-center">
+            <!-- Combined Folder + Shield Icon -->
+                <span class="relative inline-block">
+                    <i class="bi bi-file-earmark text-5xl text-blue-600"></i>
+                    <i class="bi bi-shield-lock text-white bg-blue-600 p-1 rounded-circle text-xs shadow-sm absolute bottom-0 end-0 translate-middle"></i>
+                </span>
+                <h3 class="mt-2 text-2xl font-bold text-gray-800">Create Record</h3>
+                <p class="text-sm text-gray-500">File a new Blotter or Report.</p>
+            </button>
+            
+            <!-- Sub-menu (sa loob ng card) -->
+            <div x-show="activeMenu === 'create'" x-collapse x-transition>
+                <div class="p-4 border-t border-blue-200">
+                    <div class="flex justify-center rounded-lg shadow-md">
+                        <!-- NOTE: Placeholder URLs muna, gagawan natin ng views later -->
+                        <a href="{% url 'onsite_reports:create_blotter' %}" class="flex-1 text-center rounded-l-lg bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 transition">Create Blotter</a>
+                        <a href="{% url 'onsite_reports:create_report' %}" class="flex-1 text-center rounded-r-lg bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 transition">Create Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARD 2: View Filed Records -->
+        <div class="rounded-xl transition-all duration-300"
+            :class="{ 'bg-green-50 border-2 border-green-500 shadow-xl': activeMenu === 'view', 'bg-gray-100 hover:bg-gray-200': activeMenu !== 'view' }">
+            
+            <!-- Main Clickable Area -->
+            <button @click="activeMenu = (activeMenu === 'view' ? '' : 'view')" class="w-full p-6 text-center">
+                <!-- Icon Combo: Table + Eye -->
+                <span class="relative inline-block">
+                    <i class="bi bi-table text-5xl text-green-600"></i>
+                    <i class="fas fa-search text-white bg-green-600 p-1 rounded-circle text-xs shadow-sm absolute bottom-0 end-0 translate-middle"></i>
+                </span>
+                <h3 class="mt-2 text-2xl font-bold text-gray-800">View Filed Records</h3>
+                <p class="text-sm text-gray-500">Browse all on-site blotters and reports.</p>
+            </button>
+
+            <!-- Sub-menu (sa loob ng card) -->
+            <div x-show="activeMenu === 'view'" x-collapse x-transition>
+                <div class="p-4 border-t border-green-200">
+                    <div class="flex justify-center rounded-lg shadow-md">
+                        <!-- NOTE: Placeholder URLs muna, gagawan natin ng views later -->
+                        <a href="{% url 'onsite_reports:view_blotters' %}" class="flex-1 text-center rounded-l-lg bg-yellow-500 hover:bg-yellow-300 text-white font-bold py-3 px-4 transition">View Blotters</a>
+                        <a href="{% url 'onsite_reports:view_reports' %}" class="flex-1 text-center rounded-r-lg bg-amber-500 hover:bg-amber-300 text-white font-bold py-3 px-4 transition">View Reports</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock official_content_main %}

@@ -1,0 +1,98 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+{% block official_title %}Amicable Settlement for {{ case.blotter_id }}{% endblock %}
+
+{% block extra_head_official %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        .form-input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #D1D5DB; border-radius: 0.5rem; }
+        @media print {
+            body * { visibility: hidden; }
+            #printable-paper, #printable-paper * { visibility: visible; }
+            #printable-paper { 
+                position: absolute; left: 0; top: 0; width: 100%;
+                margin: 0; padding: 20px; border: none !important; box-shadow: none !important;
+            }
+            .no-print { display: none !important; }
+            @page { size: A4; margin: 0.75in; }
+        }
+    </style>
+{% endblock %}
+
+{% block official_content_main %}
+<div x-data="{ settlementDate: '', agreementDetails: '' }">
+    <div class="flex flex-col lg:flex-row gap-8">
+        <!-- LEFT SIDE: Form -->
+        <div class="lg:w-1/3 bg-white p-6 rounded-2xl shadow-xl border">
+            <div class="border-b pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Amicable Settlement</h2>
+                <p class="mt-2 text-sm text-gray-600">Case ID: <span class="font-mono bg-gray-100 px-2 py-1 rounded">{{ case.blotter_id }}</span></p>
+            </div>
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label for="{{ form.amicable_settlement_date.id_for_label }}" class="block text-sm font-medium text-gray-900">Date of Settlement</label>
+                    <input type="date" name="{{ form.amicable_settlement_date.name }}" id="{{ form.amicable_settlement_date.id_for_label }}" 
+                           x-model="settlementDate" class="mt-1 form-input">
+                </div>
+                <div>
+                    <label for="{{ form.agreement_details.id_for_label }}" class="block text-sm font-medium text-gray-900">Details of Agreement / Pinagkasunduan</label>
+                    <textarea name="{{ form.agreement_details.name }}" id="{{ form.agreement_details.id_for_label }}" 
+                              x-model="agreementDetails" rows="10" class="mt-1 form-input" 
+                              placeholder="Ilahad dito ang buong detalye ng kasunduan..."></textarea>
+                </div>
+                <div class="pt-6 flex justify-end gap-4 border-t mt-8">
+                    <a href="{% url 'record_detail' case.pk %}" class="rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</a>
+                    <button type="submit" class="rounded-md bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                        <i class="fas fa-handshake mr-2"></i>CONFIRM
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- RIGHT SIDE: Printable Paper -->
+        <div class="lg:col-span-3">
+            <div class="flex justify-end mb-4">
+                <button onclick="window.print()" class="bg-gray-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-800 shadow-md no-print">
+                    <i class="fas fa-print mr-2"></i>Print Agreement
+                </button>
+            </div>
+            <div id="printable-paper" class="bg-white p-10 shadow-xl border font-serif text-sm">
+                <!-- Header -->
+                <div class="flex justify-between items-center border-b-2 border-black pb-4">
+                    <img src="{% static 'images/city_logo.png' %}" alt="Logo" class="img-fluid" style="max-width: 105px;">
+                    <div class="text-center">
+                         <p class="font-semibold">Republic of the Philippines</p><p class="font-semibold">City of Mandaluyong</p>
+                        <h1 class="text-2xl font-bold tracking-wider">BARANGAY ADDITION HILLS</h1>
+                         <p class="font-semibold">OFFICE OF THE LUPONG TAGAPAMAYAPA</p>
+                    </div>
+                    <img src="{% static 'images/barangay_seal.png' %}" alt="Logo 2" class="img-fluid" style="max-width: 100px;">
+                </div>
+                 <!-- Case Details Table -->
+                <table class="w-full mt-6 text-left">
+                    <tr><td class="w-2/3"><p class="font-bold">{{ case.complainant.get_full_name|upper }}</p><p class="border-t border-black mr-4">Complainant/s</p></td><td class="w-1/3" rowspan="2"><p class="font-bold">Barangay Case No.</p><p class="border-b border-black text-center">{{ case.blotter_id }}</p><p class="font-bold mt-2">For:</p><p class="border-b border-black text-center">{{ case.get_incident_type_display }}</p></td></tr><tr><td><p class="font-bold text-center text-lg italic">- against -</p><p class="font-bold">{{ case.respondent_first_name|upper }} {{ case.respondent_last_name|upper }}</p><p class="border-t border-black mr-4">Respondent/s</p></td></tr>
+                </table>
+                <!-- Title -->
+                <h2 class="text-center text-3xl font-bold my-8 tracking-widest">AMICABLE SETTLEMENT</h2>
+                <!-- Body -->
+                <div class="text-justify indent-8 leading-relaxed space-y-4">
+                    <p>We, complainant/s and respondent/s in the above-captioned case, do hereby agree to the following terms and conditions:</p>
+                    <p class="p-4 border bg-gray-50 min-h-[9rem]" x-text="agreementDetails || '[Details of the agreement will appear here as you type...]'"></p>
+                    <p>And we bind ourselves to comply honestly and faithfully with the above terms of settlement.</p>
+                    <p>Entered into this <strong class="underline" x-text="settlementDate ? new Date(settlementDate + 'T00:00:00').toLocaleDateString('en-US', {day: 'numeric'}) : '__'"></strong> day of <strong class="underline" x-text="settlementDate ? new Date(settlementDate + 'T00:00:00').toLocaleDateString('en-US', {month: 'long'}) : '________'"></strong>, <strong class="underline" x-text="settlementDate ? new Date(settlementDate + 'T00:00:00').getFullYear() : '20__'"></strong>.</p>
+                </div>
+                <!-- Signatures -->
+                <div class="mt-16 grid grid-cols-2 gap-12">
+                     <div class="text-center"><p class="border-b-2 border-black pb-1 font-semibold">{{ case.complainant.get_full_name|upper }}</p><p class="font-semibold">Complainant/s</p></div>
+                     <div class="text-center"><p class="border-b-2 border-black pb-1 font-semibold">{{ case.respondent_first_name|upper }} {{ case.respondent_last_name|upper }}</p><p class="font-semibold">Respondent/s</p></div>
+                </div>
+                <div class="mt-12">
+                    <h3 class="font-bold text-center">ATTESTATION</h3>
+                    <p class="text-justify indent-8 mt-4">I hereby certify that the foregoing amicable settlement was entered into by the parties freely and voluntarily, after I had explained to them the nature and consequence of such settlement.</p>
+                    <div class="mt-16 text-center"><p class="border-b-2 border-black inline-block px-12 font-semibold"> </p><p class="font-semibold">Punong Barangay / Lupon Chairman</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

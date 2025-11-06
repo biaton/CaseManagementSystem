@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Official - Barangay CMS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .form-input {
+            width: 100%; padding: 0.65rem 1rem; border: 1px solid #CFD8DC;
+            border-radius: 0.5rem; background-color: #f8fafc; color: #334155;
+            transition: all 0.2s;
+        }
+        .form-input:focus {
+            outline: none; border-color: #4f46e5;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+        .form-select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.7rem center; background-repeat: no-repeat;
+            -webkit-appearance: none; -moz-appearance: none; appearance: none;
+        }
+    </style>
+</head>
+<body class="py-12 px-4 sm:px-6 lg:px-8">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- HEADER -->
+        <div class="text-center mb-8">
+            <img class="mx-auto h-20 w-auto" src="{% static 'images/barangay_seal.png' %}" alt="Barangay Logo">
+            <h2 class="mt-6 text-3xl font-bold tracking-tight text-gray-900">Create New Official Account</h2>
+            <p class="mt-2 text-sm text-gray-600">Fill in the details below to add a new staff or official to the system.</p>
+        </div>
+
+        <!-- FORM CARD -->
+        <form method="POST" class="bg-white p-8 rounded-2xl shadow-xl border border-slate-200" novalidate>
+            {% csrf_token %}
+            
+            {% if form.errors %}
+                <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-8 rounded-md">
+                    <div class="flex"><div class="flex-shrink-0"><i class="fas fa-times-circle text-red-500"></i></div>
+                        <div class="ml-3"><h3 class="text-sm font-bold text-red-800">Please correct the following errors:</h3>
+                            <div class="mt-2 text-sm text-red-700">
+                                <ul class="list-disc list-inside space-y-1">
+                                    {% for field in form %}{% if field.errors %}<li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>{% endif %}{% endfor %}
+                                    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="space-y-10">
+                <!-- Personal Information Section -->
+                <fieldset>
+                    <legend class="text-base font-semibold leading-7 text-gray-900">Personal Information</legend>
+                    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-6">
+                        <div class="sm:col-span-3"><label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">First name*</label><div class="mt-1">{{ form.first_name }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Last name*</label><div class="mt-1">{{ form.last_name }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.middle_name.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Middle name</label><div class="mt-1">{{ form.middle_name }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.suffix.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Suffix</label><div class="mt-1">{{ form.suffix }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.gender.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Gender</label><div class="mt-1">{{ form.gender }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Phone number*</label><div class="mt-1">{{ form.phone_number }}</div></div>
+                    </div>
+                </fieldset>
+                
+                <!-- Account & Position Section -->
+                <fieldset class="border-t border-gray-900/10 pt-8">
+                     <legend class="text-base font-semibold leading-7 text-gray-900">Account & Position</legend>
+                     <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-6 sm:grid-cols-6">
+                        <div class="sm:col-span-3"><label for="{{ form.email.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Email address*</label><div class="mt-1">{{ form.email }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.barangay_position.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Barangay position*</label><div class="mt-1">{{ form.barangay_position }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900 ">Password*</label><div class="mt-1">{{ form.password1 }}</div></div>
+                        <div class="sm:col-span-3"><label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium leading-6 text-gray-900">Confirm password*</label><div class="mt-1">{{ form.password2 }}</div></div>
+                     </div>
+                </fieldset>
+            </div>
+
+            <!-- Action Buttons Footer -->
+            <div class="mt-10 flex items-center justify-end gap-x-6 border-t border-gray-900/10 pt-6">
+                <a href="{% url 'official_dashboard' %}" class="text-sm font-semibold leading-6 text-gray-900">Cancel</a>
+                <button type="submit" class="rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Create Account</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

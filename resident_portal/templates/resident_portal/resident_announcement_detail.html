@@ -1,0 +1,188 @@
+{% extends "resident_portal/base_resident.html" %}
+{% load static %}
+
+{% block title %}{{ announcement.title }} - Barangay Announcements{% endblock %}
+
+{% block extra_head %}
+<!-- Font Awesome for Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<!-- Custom CSS for Quill.js content (Tailwind Prose Plugin-like styling) -->
+<style>
+    /* Base styling for content from rich text editor */
+    .prose-content {
+        line-height: 1.75; /* Slightly increased line height for better readability */
+        font-size: 1.125rem; /* Base text size (lg) */
+        color: #374151; /* Darker gray for better contrast */
+    }
+    .prose-content h1, .prose-content h2, .prose-content h3, .prose-content h4 {
+        font-weight: 700;
+        margin-top: 2em; /* More space above headings */
+        margin-bottom: 0.8em;
+        line-height: 1.2;
+        color: #1a202c; /* Even darker for headings */
+    }
+    .prose-content h1 { font-size: 2.5rem; } /* Slightly larger */
+    .prose-content h2 { font-size: 2rem; }
+    .prose-content h3 { font-size: 1.75rem; }
+    .prose-content h4 { font-size: 1.5rem; }
+    .prose-content p { margin-bottom: 1.5em; } /* More space between paragraphs */
+    .prose-content ul, .prose-content ol {
+        margin-left: 1.75rem; /* Slightly more indent */
+        margin-bottom: 1.5em;
+        padding-left: 0; /* Reset default padding */
+        list-style-position: outside; /* Ensure bullets/numbers are outside content flow */
+    }
+    .prose-content li { margin-bottom: 0.75em; } /* More space between list items */
+    .prose-content ul li::marker { color: #6366f1; } /* Indigo bullets */
+    .prose-content ol li::marker { color: #6366f1; font-weight: 600; } /* Indigo numbers */
+
+    .prose-content a {
+        color: #4f46e5;
+        text-decoration: underline;
+        text-underline-offset: 2px; /* Nicer underline */
+        transition: color 0.2s ease-in-out;
+    }
+    .prose-content a:hover { color: #3730a3; }
+    .prose-content blockquote {
+        border-left: 5px solid #a78bfa; /* Lighter purple border */
+        padding-left: 1.25rem;
+        color: #4b5563; /* Darker gray */
+        font-style: italic;
+        margin: 1.5em 0; /* More vertical margin */
+        background-color: #f9fafb; /* Light background for quote */
+        border-radius: 0.375rem; /* Slight round corners */
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+    .prose-content img {
+        max-width: 100%;
+        border-radius: 0.75rem; /* Slightly more rounded */
+        margin-top: 1.5em;
+        margin-bottom: 1.5em;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* Subtle shadow for images */
+        height: auto; /* Ensure aspect ratio is maintained */
+    }
+    .prose-content pre {
+        background-color: #1f2937; /* Dark background for code blocks */
+        color: #f3f4f6; /* Light text */
+        padding: 1rem;
+        border-radius: 0.5rem;
+        overflow-x: auto; /* For long lines of code */
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+        font-size: 0.875rem;
+    }
+    .prose-content code:not(pre code) {
+        background-color: #e0e7ff; /* Light indigo for inline code */
+        color: #4f46e5;
+        padding: 0.2em 0.4em;
+        border-radius: 0.3rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- Main Content Area -->
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <article class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden transform transition-all duration-300 hover:shadow-2xl">
+        <!-- Featured Image (Hero Section) -->
+        {% if announcement.featured_image %}
+            <div class="relative w-full h-64 sm:h-80 md:h-96 lg:h-[450px] overflow-hidden">
+                <img class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                     src="{{ announcement.featured_image.url }}"
+                     alt="{{ announcement.title }}">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-50"></div>
+            </div>
+        {% endif %}
+
+        <div class="p-6 sm:p-8 md:p-10 lg:p-12">
+            <!-- Breadcrumbs / Navigation (Optional, but good for UX) -->
+            <nav class="flex mb-6 text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+                <ol role="list" class="flex items-center space-x-2">
+                    <li><a href="{% url 'resident_portal:dashboard' %}" class="hover:text-indigo-600">Home</a></li>
+                    <li><span class="mx-2 text-gray-400">/</span></li>
+                    <li><a href="{% url 'resident_portal:resident_announcement_list' %}" class="hover:text-indigo-600">Announcements</a></li>
+                    <li><span class="mx-2 text-gray-400">/</span></li>
+                    <li><span class="text-indigo-600 truncate">{{ announcement.title|truncatechars:30 }}</span></li>
+                </ol>
+            </nav>
+
+            <!-- Announcement Header -->
+            <div class="text-center mb-8">
+                <p class="text-sm font-semibold text-indigo-700 uppercase tracking-wide">Barangay Announcement</p>
+                <h1 class="mt-3 text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
+                    {{ announcement.title }}
+                </h1>
+
+                <!-- Author and Date Metadata -->
+                <div class="mt-6 flex flex-wrap justify-center items-center gap-x-6 gap-y-2 text-base text-gray-600 font-medium">
+                    <div class="flex items-center">
+                        <i class="fas fa-user-shield mr-2 text-indigo-500"></i>
+                        <span>{{ announcement.author.get_full_name|default:"Brgy. Official" }}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-calendar-alt mr-2 text-indigo-500"></i>
+                        <time datetime="{{ announcement.date_published|date:'Y-m-d' }}">{{ announcement.date_published|date:"F d, Y" }}</time>
+                    </div>
+                    {% if announcement.date_updated and announcement.date_updated != announcement.date_published %}
+                    <div class="flex items-center text-gray-500">
+                        <i class="fas fa-edit mr-2 text-gray-400"></i>
+                        <span>Updated: <time datetime="{{ announcement.date_updated|date:'Y-m-d' }}">{{ announcement.date_updated|date:"M d, Y" }}</time></span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Main Content (from Quill.js) -->
+            <div class="prose-content max-w-full mx-auto">
+                {{ announcement.content|safe }}
+            </div>
+        </div>
+    </article>
+
+    <!-- OTHER ANNOUNCEMENTS SECTION -->
+    {% if other_announcements %}
+    <div class="mt-16 pt-8 border-t border-gray-200">
+        <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">More from the Barangay</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for other in other_announcements %}
+            <a href="{% url 'resident_portal:resident_announcement_detail' other.pk %}" class="block group bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-lg">
+                {% if other.featured_image %}
+                    <div class="h-40 w-full overflow-hidden">
+                        <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" src="{{ other.featured_image.url }}" alt="{{ other.title }}">
+                    </div>
+                {% else %}
+                     <div class="h-40 w-full bg-gray-50 flex items-center justify-center">
+                        <img src="{% static 'images/barangay_seal.png' %}" class="h-24 w-24 opacity-20" alt="Brgy. Seal">
+                    </div>
+                {% endif %}
+                <div class="p-5">
+                    <p class="text-xs text-indigo-600 font-semibold mb-1">{{ other.date_published|date:"F d, Y" }}</p>
+                    <h3 class="mt-1 text-lg font-bold text-gray-900 group-hover:text-indigo-700 leading-snug line-clamp-2">
+                        {{ other.title }}
+                    </h3>
+                    <p class="mt-2 text-sm text-gray-600 line-clamp-3">
+                        {{ other.content|striptags|truncatewords:20 }}
+                    </p>
+                    <span class="mt-4 inline-flex items-center text-sm font-semibold text-indigo-600 group-hover:text-indigo-500">
+                        Read more <span class="ml-1 transform group-hover:translate-x-1 transition-transform">→</span>
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Back Button -->
+    <div class="mt-16 text-center">
+        <a href="{% url 'resident_portal:resident_announcement_list' %}" class="inline-flex items-center bg-indigo-500 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-indigo-600 transition-colors duration-300 transform hover:scale-105">
+            <i class="fas fa-arrow-left mr-3"></i>
+            Back to All Announcements
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}

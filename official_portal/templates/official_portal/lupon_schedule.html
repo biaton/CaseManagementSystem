@@ -1,0 +1,107 @@
+{% extends "official_portal/base_official.html" %}
+{% block official_title %}Manage Sidebar Officials List{% endblock %}
+
+{% block extra_head_official %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        .form-input{
+            display:block;
+            width:100%;
+            padding:.5rem .75rem;
+            border:1px solid #d1d5db;
+            border-radius:.375rem;
+        }
+        .form-input:focus{
+            outline:2px solid transparent;
+            outline-offset:2px;
+            border-color:#4f46e5;
+            box-shadow:0 0 0 1px #4f46e5;
+        }
+    </style>
+{% endblock %}
+
+{% block official_content_main %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8" 
+     x-data="{ isDeleteModalOpen: false, deleteUrl: '', deleteIdentifier: '' }">
+    
+    <!-- LEFT SIDE: Add/Edit Form -->
+    <div class="lg:col-span-1">
+        <div class="bg-white p-6 rounded-lg shadow-md border sticky top-24">
+            {% if official_to_edit %}
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Edit Official in List</h3>
+                <form method="POST" action="{% url 'system_settings:edit_official_display' official_to_edit.pk %}" class="space-y-4">
+            {% else %}
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Add Official to Sidebar</h3>
+                <form method="POST" action="{% url 'system_settings:manage_officials_display' %}" class="space-y-4">
+            {% endif %}
+                {% csrf_token %}
+                <div><label for="{{ form.full_name.id_for_label }}" class="text-sm font-medium">Full Name</label>{{ form.full_name }}</div>
+                <div><label for="{{ form.position.id_for_label }}" class="text-sm font-medium">Position</label>{{ form.position }}</div>
+                <div><label for="{{ form.order.id_for_label }}" class="text-sm font-medium">Display Order (0=Top)</label>{{ form.order }}</div>
+
+                {% if official_to_edit %}
+                    <div class="flex gap-2 pt-2">
+                        <button type="submit" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700">Update</button>
+                        <a href="{% url 'system_settings:manage_officials_display' %}" class="w-full text-center bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">Cancel</a>
+                    </div>
+                {% else %}
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">Add to List</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE: Table of Officials -->
+    <div class="lg:col-span-2">
+        <div class="bg-white p-6 rounded-lg shadow-md border">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Current Sidebar Officials List</h3>
+            <div class="overflow-x-auto rounded-lg border">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium uppercase">Position</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for official in officials %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap font-medium">{{ official.full_name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ official.position }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center space-x-4 text-lg">
+                                <!-- ITO ANG MGA BAGONG LINKS -->
+                                <a href="{% url 'system_settings:edit_official_display' official.pk %}" class="text-indigo-600 hover:text-indigo-500" title="Edit"><i class="bi bi-pencil-square"></i></a>
+                                <button @click="isDeleteModalOpen = true; deleteUrl = `{% url 'system_settings:delete_official_display' official.pk %}`; deleteIdentifier = '{{ official.full_name|escapejs }}';"
+                                        class="text-red-600 hover:text-red-500" title="Delete"><i class="bi bi-trash3-fill"></i></button>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="3" class="text-center py-6">No officials listed for sidebar display.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE MODAL -->
+    <div x-show="isDeleteModalOpen" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4" style="display:none;">
+        <div @click="isDeleteModalOpen=false" class="fixed inset-0 bg-black/50"></div>
+        <div @click.outside="isDeleteModalOpen=false" class="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <form :action="deleteUrl" method="POST">
+                {% csrf_token %}
+                <div class="p-6 text-center">
+                    <div class="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-red-100"><i class="fas fa-exclamation-triangle text-red-600 text-xl"></i></div>
+                    <h3 class="mt-4 text-lg font-semibold">Remove Official from List</h3>
+                    <p class="mt-2 text-sm text-gray-500">Are you sure you want to remove <strong x-text="deleteIdentifier"></strong> from the sidebar display list?</p>
+                </div>
+                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3">
+                    <button @click="isDeleteModalOpen=false" type="button" class="text-sm font-semibold py-2 px-4 rounded-md bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</button>
+                    <button type="submit" class="text-sm font-semibold py-2 px-4 rounded-md bg-red-600 text-white shadow-sm hover:bg-red-500">Yes, Remove</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

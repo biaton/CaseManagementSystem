@@ -1,0 +1,75 @@
+{% extends "resident_portal/base_resident.html" %}
+
+{% block title %}Case Details: {{ blotter.blotter_id }}{% endblock %}
+
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-md border">
+    
+    <!-- HEADER -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 border-b pb-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Case Summary</h1>
+            <p class="text-sm text-gray-500 mt-1">Case ID: <span class="font-mono bg-gray-100 px-2 py-1 rounded">{{ blotter.blotter_id }}</span></p>
+        </div>
+        <div class="mt-4 sm:mt-0 text-right">
+            <p class="text-xs text-gray-500">Current Status</p>
+            <span class="px-3 py-1.5 inline-flex text-sm leading-5 font-bold rounded-full 
+                {% if blotter.status == 'Certified' %}bg-green-100 text-green-800
+                {% elif blotter.status == 'Dismissed' or blotter.status == 'Withdrawn' %}bg-red-100 text-red-800
+                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                {{ blotter.get_status_display }}
+            </span>
+        </div>
+    </div>
+    
+    <!-- CASE DETAILS -->
+    <div class="space-y-4 text-sm mb-8">
+        <p><strong>Incident Type:</strong> {{ blotter.get_incident_type_display }}</p>
+        <p><strong>Date of Incident:</strong> {{ blotter.date_of_incident|date:"F d, Y" }}</p>
+        <p><strong>Location of Incident:</strong> {{ blotter.location_of_incident }}</p>
+        <p><strong>Respondent Named:</strong> {{ blotter.respondent_first_name }} {{ blotter.respondent_last_name }}</p>
+    </div>
+
+    <!-- CASE HISTORY / TIMELINE -->
+    <div>
+        <h2 class="text-xl font-semibold text-gray-700 mb-6">Case History & Timeline</h2>
+        <ol class="relative border-l border-gray-200 ml-2">                  
+            {% for log in blotter.logs.all %}
+            <li class="mb-10 ml-6">
+                <span class="absolute flex items-center justify-center w-6 h-6 bg-blue-100 rounded-full -left-3 ring-8 ring-white">
+                    {% if 'Settlement' in log.incident_type %}<i class="fas fa-handshake text-blue-600"></i>
+                    {% elif 'Scheduling' in log.incident_type %}<i class="fas fa-calendar-check text-blue-600"></i>
+                    {% else %}<i class="fas fa-info-circle text-blue-600"></i>{% endif %}
+                </span>
+                <h3 class="flex items-center mb-1 text-lg font-semibold text-gray-900">{{ log.case_title }}</h3>
+                <time class="block mb-2 text-sm font-normal leading-none text-gray-400">on {{ log.date_processed|date:"F d, Y, P" }} by {{ log.processed_by.get_full_name|default:'Barangay Official' }}</time>
+                {% if log.remarks %}
+                <p class="mb-4 text-base font-normal text-gray-500">{{ log.remarks }}</p>
+                {% endif %}
+            </li>
+            {% empty %}
+             <li class="ml-4"><p class="text-gray-500">No actions have been logged for this case yet.</p></li>
+            {% endfor %}
+            <!-- Initial Filing Log -->
+            <li class="mb-10 ml-6">
+                <span class="absolute flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full -left-3 ring-8 ring-white">
+                    <i class="fas fa-file-alt text-gray-600"></i>
+                </span>
+                 <h3 class="text-lg font-semibold text-gray-900">Case Filed</h3>
+                <time class="block mb-2 text-sm font-normal leading-none text-gray-400">on {{ blotter.date_filed|date:"F d, Y, P" }}</time>
+            </li>
+        </ol>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-8 border-t pt-6 flex flex-wrap gap-4">
+        <a href="{% url 'resident_portal:my_blotters_list' %}" class="inline-flex items-center bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-700">
+            <i class="fas fa-arrow-left mr-2"></i>
+            Go to blotter list
+        </a>
+        <a href="{% url 'resident_portal:notification_list' %}" class="inline-flex items-center bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300">
+            View All Notifications
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,675 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="tl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Create an Account - Barangay Addition Hills</title>
+    <link href="{% static 'css/output.css' %}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f2f5; }
+        .signup-container { max-width: 950px; width: 100%; }
+        .bg-barangay-primary { background-color: #0d6efd; }
+        .bg-barangay-gradient {
+            /* Ito ang CSS equivalent ng Tailwind gradient mo */
+            background-image: linear-gradient(to bottom right, #2563EB, #4F46E5);
+            /* #2563EB ay 'blue-600', #4F46E5 ay 'indigo-600' */
+        }
+        .form-control:focus, .form-select:focus { border-color: #0d6efd; box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25); }
+        .btn-barangay { background-color: #0d6efd; border-color: #0d6efd; }
+        .info-side { display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; padding: 3rem; }
+        .info-side img { max-width: 150px; margin-bottom: 1.5rem; }
+        .shadow-custom { box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.075); }
+        .form-side { padding: 3rem; }
+        .form-label { margin-bottom: 0.3rem; font-weight: 500; }
+        .invalid-feedback { font-size: 0.8em; }
+
+        .visually-hidden {
+            position: absolute !important;
+            width: 1px !important;
+            height: 1px !important;
+            padding: 0 !important;
+            margin: -1px !important;
+            overflow: hidden !important;
+            clip: rect(0,0,0,0) !important;
+            white-space: nowrap !important;
+            border: 0 !important;
+        }
+        .invalid-feedback.d-block {
+            color: #dc3545; /* Bootstrap danger red */
+            font-size: 10px; /* Slightly larger than original, but still small */
+            margin-top: 5px; /* Spacing above */
+            margin-bottom: 5px; /* Spacing below */
+            padding-left: 20px; /* Space for the icon */
+            position: relative; /* For absolute positioning of the icon */
+            display: block; /* Ensure it's always block */
+            line-height: 1.3;
+        }
+
+        .invalid-feedback.d-block::before {
+            content: "✗"; /* Red X icon */
+            color: #dc3545;
+            font-weight: bold;
+            position: absolute;
+            left: 0; /* Position the icon */
+            top: 0; /* Align with text */
+        }
+
+        /* Styling for Django form help text (if any) */
+        .form-text.text-muted {
+            font-size: 0.75em; /* Even smaller to differentiate from errors */
+            color: #6c757d; /* Bootstrap muted grey */
+            margin-top: 3px;
+            display: block;
+        }
+
+        /* NEW: Styles for client-side password feedback */
+        #password-feedback {
+            background-color: #f8f9fa; /* Light background */
+            border: 1px solid #dee2e6; /* Light border */
+            border-radius: .25rem; /* Rounded corners */
+            padding: 10px 15px; /* Padding inside */
+            margin-top: 8px; /* Space above */
+            font-size: 0.65em; /* Smaller font for readability */
+        }
+
+        .password-rule {
+            margin-bottom: 5px; /* Space between rules */
+            display: flex; /* For icon and text alignment */
+            align-items: center;
+            color: #6c757d; /* Default muted text color */
+        }
+
+        .password-rule:last-child {
+            margin-bottom: 0; /* No margin for the last rule */
+        }
+
+        /* Styles for valid/invalid rules */
+        .password-rule.valid {
+            color: #28a745; /* Green for valid */
+        }
+
+        .password-rule.invalid {
+            color: #dc3545; /* Red for invalid */
+        }
+
+        /* Icon styling */
+        .password-rule .bi.bi-check-circle-fill {
+            color: #28a745; /* Green checkmark */
+        }
+
+        .password-rule .bi.bi-x-circle-fill {
+            color: #dc3545; /* Red x-mark */
+        }
+        
+        /* Default empty icon (for initial state) */
+        .password-rule .bi {
+            width: 1em; /* Ensure consistent icon width */
+            text-align: center;
+        }
+        
+        .password-match-feedback{
+            color: #dc3545; /* Bootstrap danger red */
+            font-size: 10px; /* Slightly larger than original, but still small */
+            margin-top: 5px; /* Spacing above */
+            margin-bottom: 5px; /* Spacing below */
+            padding-left: 20px; /* Space for the icon */
+            position: relative; /* For absolute positioning of the icon */
+            display: block; /* Ensure it's always block */
+            line-height: 1.3;
+        }
+        .password-match-feedback::before {
+            content: "✗"; /* Red X icon */
+            color: #dc3545;
+            font-weight: bold;
+            position: absolute;
+            left: 0; /* Position the icon */
+            top: 0; /* Align with text */
+        }
+        .match-check{
+            font-size: 0.75em; /* Even smaller to differentiate from errors */
+            color: #6c757d; /* Bootstrap muted grey */
+            margin-top: 3px;
+            display: block;
+        }
+        #password-match-feedback {
+            background-color: #f8f9fa; /* Light background */
+            border: 1px solid #dee2e6; /* Light border */
+            border-radius: .25rem; /* Rounded corners */
+            padding: 10px 15px; /* Padding inside */
+            margin-top: 8px; /* Space above */
+            font-size: 0.65em; /* Smaller font for readability */
+        }
+    </style>
+</head>
+
+<body class="d-flex align-items-center py-5">
+
+<div class="container signup-container">
+    <div class="card border-0 shadow-custom rounded-4 overflow-hidden">
+        <div class="row g-0">
+            <!-- LEFT SIDE: Form -->
+            <div class="col-lg-7 form-side">
+
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h2 class="fw-bold mb-1 h3">Registration Form</h2>
+                        <p class="text-muted mb-0 small">Please fill out the form to get started.</p>
+                    </div>
+
+                    <div class="d-flex justify-content-end"> 
+                        <button type="button" class="btn-close" aria-label="Close" id="mobile-close-btn"></button>
+                    </div>
+                </div>
+
+                <form id="registrationForm" method="post" action="{% url 'resident_portal:signup' %}" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="d-none">{{ form.id_image }}</div>
+
+                    {% if form.non_field_errors %}<div class="alert alert-danger p-2 small">{{ form.non_field_errors|striptags }}</div>{% endif %}
+                    
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.first_name.label }}</label>
+                            {{ form.first_name }}{{ form.first_name.errors }}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.last_name.label }}</label>
+                            {{ form.last_name }}{{ form.last_name.errors }}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.middle_name.label }}</label>
+                            {{ form.middle_name }}{{ form.middle_name.errors }}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.suffix.label }}</label>
+                            {{ form.suffix }}{{ form.suffix.errors }}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.gender.label }}</label>
+                            {{ form.gender }}{{ form.gender.errors }}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.birthday.label }}</label>
+                            {{ form.birthday }}{{ form.birthday.errors }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small">{{ form.address.label }}</label>
+                            {{ form.address }}{{ form.address.errors }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small">{{ form.phone_number.label }}</label>
+                            {{ form.phone_number }}{{ form.phone_number.errors }}
+                        </div>
+                        <div class="col-12">
+                            <hr class="my-2">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small">{{ form.email.label }}</label>
+                            {{ form.email }}{{ form.email.errors }}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.password1.label }}</label>
+                            {{ form.password1 }}
+                            {# Client-side feedback container #}
+                            <div id="password-feedback" class="mt-2" style="display: none;">
+                                <p id="length-check" class="password-rule"><i class="bi me-1"></i> 8 to 20 characters.</p>
+                                <p id="lowercase-check" class="password-rule"><i class="bi me-1"></i> At least one lowercase letter.</p>
+                                <p id="uppercase-check" class="password-rule"><i class="bi me-1"></i> At least one capital letter.</p>
+                                <p id="number-check" class="password-rule"><i class="bi me-1"></i> At least one number.</p>
+                                <p id="no-spaces-check" class="password-rule"><i class="bi me-1"></i> No spaces.</p>
+                            </div>
+                            {# Django server-side errors (as fallback) #}
+                            {% if form.password1.errors %}
+                                {% for error in form.password1.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div> 
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-sm-6">
+                            <label class="form-label small">{{ form.password2.label }}</label>
+                            {{ form.password2 }}
+                            {# Client-side feedback for password match #}
+                            <div id="password-match-feedback" class="mt-2" style="display: none;">
+                                <p id="match-check" class="password-rule"><i class="bi me-1"></i> Passwords match.</p>
+                            </div>
+                            {% if form.password2.errors %}
+                                {% for error in form.password2.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-check mt-4">
+                        {{ form.terms }}
+                        <label class="form-check-label small" for="{{ form.terms.id_for_label }}">I agree to the 
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal" class="text-primary fw-bold text-decoration-none">
+                                Terms and Conditions</a>.</label>
+                        {% if form.terms.errors %}
+                        <div class="d-block invalid-feedback">
+                            {{ form.terms.errors|striptags }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#idVerificationModal" class="btn btn-primary fw-semibold py-2">
+                            Proceed to Verification
+                        </button>
+                    </div>
+                    
+                </form>
+            </div>
+
+            <!-- RIGHT SIDE: Branding -->
+            <div class="col-lg-5 d-none d-lg-flex flex-column justify-content-center align-items-center text-white p-5 bg-barangay-gradient"> 
+                <a href="{% url 'resident_portal:public_home' %}" class="inline-block">
+                        <img src="{% static 'images/barangay_seal.png' %}" class="img-fluid mb-4" style="max-width: 150px; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.4));" alt="Barangay Logo">
+                    </a>
+                <h4 class="text-center fw-bold h5 mb-2">JOIN OUR DIGITAL COMMUNITY</h4>
+                <p class="mb-3 text-center small text-white-100">
+                    Create your account to easily file reports and receive updates.
+                </p>
+                <hr class="border-light w-50 my-4 opacity-50">
+                <p class="text-center small">Already have an account?</p>
+                <a href="{% url 'resident_portal:login' %}" class="btn btn-outline-light btn-sm fw-bold mt-2">
+                    Sign In Here
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ======================================================================= -->
+<!-- TERMS AND CONDITIONS MODAL (Professional Version) -->
+<!-- ======================================================================= -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content rounded-4">
+            
+            <!-- Modal Header -->
+            <div class="modal-header bg-primary text-white">
+                <h1 class="modal-title fs-5 fw-bold d-flex align-items-center" id="plainModalLabel">
+                    <i class="bi bi-info-circle-fill me-3"></i>
+                    Terms, Conditions, and Data Privacy Notice
+                </h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body (with scroll) -->
+            <div class="modal-body p-4 p-md-5">
+                <p class="mb-4">Last Updated: {% now "F j, Y" %}</p>
+                
+                <p>Welcome to the Barangay Addition Hills Case Management System. By creating an account and using this service, you acknowledge that you have read, understood, and agree to be bound by the following terms and conditions:</p>
+
+                <p>1. <b>Acknowledgment and Purpose of the System - </b>This system is an official platform of Barangay Addition Hills designed to streamline the process of filing, tracking, and resolving community-related cases and reports. Your use of this service is a privilege granted by the barangay administration.</p>
+
+                <p>2. <b>Data Privacy and Consent (R.A. 10173) - </b>You hereby consent to the collection, processing, and storage of your personal information, including but not limited to your full name, address, contact details, and the valid ID you will provide. This data is essential for identity verification, case management, official communication, and documentation. All personal data will be handled in strict compliance with the Data Privacy Act of 2012 (R.A. 10173) and will not be shared with third parties without your explicit consent, unless required by law.</p>
+
+                <p>3. <b>User Responsibility and Accountability - </b>You are solely responsible for the truthfulness and accuracy of all information and evidence you submit through this system. The submission of false information, fraudulent documents, or perjured statements constitutes a violation of these terms and is punishable under the Revised Penal Code of the Philippines. The barangay reserves the right to suspend or terminate accounts found to be in misuse of this system.</p>
+            </div>
+        
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary fw-bold" data-bs-dismiss="modal">I Understand and Agree</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ======================================================================= -->
+<!-- WAKAS NG MODAL -->
+<!-- ======================================================================= -->
+
+<!-- ======================================================================= -->
+<!-- ID VERIFICATION MODAL (ITO ANG BAGO) -->
+<!-- ======================================================================= -->
+<div class="modal fade" id="idVerificationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            
+            <!-- Modal Header -->
+            <div class="modal-header bg-primary text-white">
+                <h1 class="modal-title fs-5 fw-bold d-flex align-items-center">
+                    <i class="bi bi-person-vcard-fill me-3"></i>
+                    Identity Verification
+                </h1>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body p-4 p-md-5">
+                
+                <!-- Progress Indicator -->
+                <div class="text-center mb-4">
+                    <p class="fw-semibold">Final Step: Almost there!</p>
+                    <div class="progress mt-2" style="height: 5px;">
+                        <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <p class="text-center text-muted mb-4 small">
+                    To complete your registration, please upload a clear photo of a valid government-issued ID.
+                </p>
+
+                <!-- Image Preview Area with Transition -->
+                <div id="image-preview-container" class="mb-4 p-4 border-2 border-dashed rounded-3 text-center bg-light cursor-pointer" onclick="document.getElementById('modal_id_image').click();">
+                    <div id="image-placeholder" class="transition-all">
+                        <i class="bi bi-cloud-arrow-up-fill text-5xl text-muted"></i>
+                        <p class="text-muted small mt-2">Click here to browse or drag & drop a file.</p>
+                    </div>
+                    <img id="image-preview" src="#" alt="ID Preview" class="img-fluid rounded-3 d-none" style="max-height: 200px; margin: auto;"/>
+                </div>
+
+                <div class="d-none"> {# Keep this div hidden, but the input inside is still functional #}
+                    {{ form.id_image }}
+                </div>
+
+                <!-- File Input (Visually Hidden)
+                <input type="file" id="modal_id_image" class="d-none" required accept="image/png, image/jpeg, image/jpg"> -->
+            
+                <div class="alert alert-light small border d-flex align-items-start">
+                    <i class="bi bi-shield-check me-2 mt-1"></i>
+                    <div>
+                        <strong class="d-block">Why do we need this?</strong>
+                        This helps us verify your identity. Your data is protected under the Data Privacy Act.
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Back</button>
+                 <button type="button" id="finalizeButton" class="btn btn-success fw-bold">
+                    <i class="bi bi-check-circle-fill me-2"></i>Finalize Registration
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Baguhin ito para ituro sa main_id_image_input
+        const mainIdInput = document.getElementById('id_id_image'); // Ito na ang gagamitin natin
+        const previewContainer = document.getElementById('image-preview-container');
+        const previewImage = document.getElementById('image-preview');
+        const placeholder = document.getElementById('image-placeholder');
+
+        previewContainer.addEventListener('click', function() {
+            mainIdInput.click(); // Trigger click on the actual hidden file input
+        });
+
+        // Logic for File Input Click
+        if(mainIdInput) {
+            mainIdInput.addEventListener('change', handleFileSelect);
+        }
+
+        // Logic for Drag and Drop
+        if(previewContainer) {
+            previewContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                previewContainer.classList.add('border-primary');
+            });
+            previewContainer.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                previewContainer.classList.remove('border-primary');
+            });
+            previewContainer.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                previewContainer.classList.remove('border-primary');
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    // Direct assignment to files property is not allowed for security reasons.
+                    // We need to re-create a DataTransfer object or simulate user interaction.
+                    // However, the simplest way is to simulate a file input change.
+                    
+                    // A common workaround is to clear the input, set its files, and then trigger change.
+                    // BUT, programmatically setting 'files' property is generally blocked by browsers.
+                    // So, we'll try the old-school way for drag and drop by triggering a click.
+                    // More reliably, you'd need a different strategy for drag-and-drop combined with a hidden input.
+                    
+                    // For now, let's keep it simple and just log an alert for drag-and-drop
+                    // and primarily rely on the click-to-upload.
+                    alert('Drag and drop is not fully supported for direct file assignment to a hidden input due to browser security policies. Please use the "Click here to browse" function.');
+                    // Or, if you want a more robust solution, you'd have to make the Django-rendered input visible.
+                    // For this immediate problem, let's just make sure the click works.
+                }
+            });
+        }
+        
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.classList.remove('d-none');
+                    placeholder.classList.add('d-none');
+                }
+                reader.readAsDataURL(file);
+            } else {
+                 // Kung walang pinili, ibalik sa placeholder
+                 previewImage.classList.add('d-none');
+                 placeholder.classList.remove('d-none');
+                 previewImage.src = '#'; // Clear the image source
+            }
+        }
+
+        // --- Client-side Password Validation Logic ---
+        const passwordInput = document.getElementById('id_password1');
+        const passwordFeedbackDiv = document.getElementById('password-feedback');
+
+        // Get elements for each rule
+        const lengthCheckRule = document.getElementById('length-check');
+        const lowercaseCheckRule = document.getElementById('lowercase-check');
+        const uppercaseCheckRule = document.getElementById('uppercase-check');
+        const numberCheckRule = document.getElementById('number-check');
+        const noSpacesCheckRule = document.getElementById('no-spaces-check');
+        
+        // --- Elements for Password Match Check ---
+        const confirmPasswordInput = document.getElementById('id_password2');
+        const passwordMatchFeedbackDiv = document.getElementById('password-match-feedback');
+        const matchCheckRule = document.getElementById('match-check');
+
+        const updatePasswordFeedback = () => {
+            const password = passwordInput.value;
+            // const username = document.getElementById('id_username') ? document.getElementById('id_username').value : '';
+            // const email = document.getElementById('id_email') ? document.getElementById('id_email').value : '';
+
+            // Show/hide feedback div
+            if (password.length > 0) {
+            passwordFeedbackDiv.style.display = 'block';
+            } else {
+                passwordFeedbackDiv.style.display = 'none';
+            }
+
+            // --- Validate Length (8 to 20 characters) ---
+            const isLengthValid = password.length >= 8 && password.length <= 20;
+            updateRuleStatus(lengthCheckRule, isLengthValid);
+
+            // --- Validate At least one lowercase letter ---
+            const hasLowercase = /[a-z]/.test(password);
+            updateRuleStatus(lowercaseCheckRule, hasLowercase);
+
+            // --- Validate At least one capital letter ---
+            const hasUppercase = /[A-Z]/.test(password);
+            updateRuleStatus(uppercaseCheckRule, hasUppercase);
+
+            // --- Validate At least one number ---
+            const hasNumber = /[0-9]/.test(password);
+            updateRuleStatus(numberCheckRule, hasNumber);
+
+            // --- Validate No spaces ---
+            const noSpaces = !/\s/.test(password); // Returns true if no spaces
+            updateRuleStatus(noSpacesCheckRule, noSpaces);
+
+            updatePasswordMatchFeedback();
+        };
+
+        const updateRuleStatus = (element, isValid) => {
+            const icon = element.querySelector('.bi');
+            element.classList.remove('valid', 'invalid');
+            icon.classList.remove('bi-check-circle-fill', 'bi-x-circle-fill');
+
+            if (isValid) {
+                element.classList.add('valid');
+                icon.classList.add('bi-check-circle-fill');
+            } else {
+                element.classList.add('invalid');
+                icon.classList.add('bi-x-circle-fill');
+            }
+        };
+
+        // --- NEW: Function to update password match feedback ---
+        const updatePasswordMatchFeedback = () => {
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            // Show/hide feedback div for password2
+            if (confirmPassword.length > 0) {
+                passwordMatchFeedbackDiv.style.display = 'block';
+            } else {
+                passwordMatchFeedbackDiv.style.display = 'none';
+                // Reset status if hidden
+                matchCheckRule.classList.remove('valid', 'invalid');
+                matchCheckRule.querySelector('.bi').classList.remove('bi-check-circle-fill', 'bi-x-circle-fill');
+                return;
+            }
+
+            const passwordsMatch = (password === confirmPassword && password.length > 0);
+            updateRuleStatus(matchCheckRule, passwordsMatch);
+        };
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', updatePasswordFeedback);
+            updatePasswordFeedback(); // Initial check for autofill
+        }
+
+        if (confirmPasswordInput) {
+            confirmPasswordInput.addEventListener('input', updatePasswordMatchFeedback);
+            updatePasswordMatchFeedback(); // Initial check for autofill
+        }
+
+        // Since similarity checks are now removed, these input listeners might be less critical unless other rules depend on them.
+        // However, it's good practice to update if other fields might affect password validation rules in the future.
+        const otherFields = ['id_first_name', 'id_last_name', 'id_email', 'id_username'];
+        otherFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', updatePasswordFeedback); // This will re-evaluate if similarity check is re-added
+            }
+        });
+
+        const mobileCloseButton = document.getElementById('mobile-close-btn');
+
+            if (mobileCloseButton) {
+                mobileCloseButton.addEventListener('click', function() {
+                    // Redirect to home page or any desired page
+                    window.location.href = "{% url 'resident_portal:public_home' %}"; 
+                });
+            }
+
+        // Finalize Button Logic
+        const finalizeButton = document.getElementById('finalizeButton');
+        const registrationForm = document.getElementById('registrationForm');
+        const termsCheckbox = document.getElementById('{{ form.terms.id_for_label }}') || document.querySelector('input[name="terms"]');
+        // Tanggalin ito, gagamitin na natin ang 'mainIdInput'
+        // const modalIdImageInput = document.getElementById('modal_id_image');
+        // const mainIdImageInput = document.querySelector('input[name="id_image"]'); // Hindi na rin ito kailangan
+
+        if (finalizeButton) {
+            finalizeButton.addEventListener('click', function() {
+
+                let isValidClientSide = true;
+
+                // 1. Check native HTML5 validation (kung gusto mo pa rin gamitin)
+                // Note: registrationForm.checkValidity() works well even with novalidate.
+                // It simply tells you if the fields meet their HTML5 constraints (required, type, etc.)
+                if (!registrationForm.checkValidity()) {
+                    isValidClientSide = false;
+                    // Trigger native browser validation messages
+                    registrationForm.reportValidity(); 
+                    // Optional: Scroll to the first invalid field
+                    const firstInvalidField = registrationForm.querySelector(':invalid');
+                    if (firstInvalidField) {
+                        firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    // Isara ang modal para makita ng user ang errors
+                    bootstrap.Modal.getInstance(document.getElementById('idVerificationModal')).hide();
+                    // No need for alert here, native messages will show
+                    return; // Stop here if native validation fails
+                }
+                // 2. Check terms and conditions manually
+                if (!termsCheckbox || !termsCheckbox.checked) {
+                    alert('You must agree to the Terms and Conditions.');
+                    isValidClientSide = false;
+                    bootstrap.Modal.getInstance(document.getElementById('idVerificationModal')).hide();
+                    // Optional: Highlight the checkbox field if it's invalid
+                    if (termsCheckbox) {
+                        termsCheckbox.classList.add('is-invalid'); // Add Bootstrap invalid class
+                    }
+                    return;
+                } else {
+                     if (termsCheckbox) {
+                        termsCheckbox.classList.remove('is-invalid');
+                    }
+                }
+                
+                if (!mainIdInput || !mainIdInput.files.length) {
+                    alert('Please upload a valid ID photo.');
+                    isValidClientSide = false;
+                    // Optional: Highlight the ID upload area
+                    if (previewContainer) {
+                        previewContainer.classList.add('border-danger'); // Or some visual cue
+                    }
+                    return;
+                } else {
+                    if (previewContainer) {
+                                previewContainer.classList.remove('border-danger');
+                            }
+                        }
+
+                
+                if (isValidClientSide) {
+                // Walang na tayong lilipatin dahil direkta na ang 'mainIdInput'
+                // registrationForm.submit() na agad
+                registrationForm.submit();
+                }
+            });
+        }
+
+        // Mas simple: Titingnan lang natin kung may error class na nalagay sa fields
+        // kapag bumalik ang page mula sa server na may errors.
+        const hasFormErrors = document.querySelectorAll('.invalid-feedback.d-block').length > 0 || 
+                              document.querySelectorAll('.alert.alert-danger').length > 0;
+        
+        if (hasFormErrors) {
+            const idVerificationModal = bootstrap.Modal.getInstance(document.getElementById('idVerificationModal'));
+            if (idVerificationModal) {
+                idVerificationModal.hide();
+            }
+            // Scroll to the first error element that is visible
+            const firstErrorElement = document.querySelector('.invalid-feedback.d-block, .alert.alert-danger');
+            if (firstErrorElement) {
+                firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                registrationForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+    });
+</script>
+</body>
+</html>

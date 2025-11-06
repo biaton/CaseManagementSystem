@@ -1,0 +1,175 @@
+{% extends "official_portal/base_official.html" %}
+{% load static %}
+
+{% block official_title %}Monthly Analytics Report{% endblock %}
+
+{% block extra_head_official %}
+    <!-- Chart.js at Datalabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+{% endblock %}
+
+{% block official_content_main %}
+<div class="bg-white p-4 sm:p-6 rounded-2xl shadow-lg border space-y-8">
+    
+    <!-- ======================================================================= -->
+    <!-- HEADER and FILTERS -->
+    <!-- ======================================================================= -->
+    <div class="flex flex-col md:flex-row items-start md:items-center md:justify-between gap-4">
+        <div>
+            <h2 class="text-3xl font-extrabold text-gray-900">Monthly Analytics Report</h2>
+<!--            <p class="text-sm text-gray-500 mt-1">Detailed case breakdown for <strong class="text-indigo-600">{{ selected_month|date:"F Y" }}</strong>.</p>-->
+        </div>
+        <form method="GET" class="flex items-center gap-2 bg-gray-100 p-1.5 rounded-lg">
+            <select name="year" class="py-2 pl-3 pr-8 border-0 bg-transparent text-gray-700 text-sm font-medium focus:ring-0">
+                {% for y in years %}<option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>{% endfor %}
+            </select>
+            <select name="month" class="py-2 pl-3 pr-8 border-0 bg-transparent text-gray-700 text-sm font-medium focus:ring-0">
+                {% for m in months %}<option value="{{ m.num }}" {% if m.num == selected_month %}selected{% endif %}>{{ m.name }}</option>{% endfor %}
+            </select>
+            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-semibold hover:bg-indigo-700 transition-colors shadow">Go</button>
+        </form>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- KEY METRICS (Highest & Lowest) -->
+    <!-- ======================================================================= -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="p-5 rounded-xl border bg-slate-50 flex items-center gap-4">
+            <div class="bg-red-100 text-red-600 rounded-full p-3"><i class="bi bi-arrow-up-right-circle-fill text-2xl"></i></div>
+            <div>
+                <p class="text-sm font-medium text-gray-500">Highest Incident Day</p>
+                <p class="text-2xl font-bold text-gray-800">{{ highest_day.day|date:"M d"|default:"N/A" }}</p>
+            </div>
+        </div>
+        <div class="p-5 rounded-xl border bg-slate-50">
+            <p class="text-sm font-medium text-gray-500">Cases on Highest Day</p>
+            <p class="text-3xl font-extrabold text-red-600">{{ highest_day.count|default:0 }}</p>
+        </div>
+        <div class="p-5 rounded-xl border bg-slate-50 flex items-center gap-4">
+            <div class="bg-green-100 text-green-600 rounded-full p-3"><i class="bi bi-arrow-down-right-circle-fill text-2xl"></i></div>
+            <div>
+                <p class="text-sm font-medium text-gray-500">Lowest Incident Day</p>
+                <p class="text-2xl font-bold text-gray-800">{{ lowest_day.day|date:"M d"|default:"N/A" }}</p>
+            </div>
+        </div>
+         <div class="p-5 rounded-xl border bg-slate-50">
+            <p class="text-sm font-medium text-gray-500">Cases on Lowest Day</p>
+            <p class="text-3xl font-extrabold text-green-600">{{ lowest_day.count|default:0 }}</p>
+        </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- CHARTS GRID -->
+    <!-- ======================================================================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Line Chart -->
+        <div class="lg:col-span-2 bg-slate-50 p-6 rounded-xl border">
+            <h3 class="font-bold text-gray-800">Daily Incident Trend</h3>
+            <div class="h-80"><canvas id="dailyLineChart"></canvas></div>
+        </div>
+        
+        <!-- Pie Chart -->
+        <div class="lg:col-span-1 bg-slate-50 p-6 rounded-xl border">
+            <h3 class="font-bold text-center text-gray-800 mb-4">Incident Type Breakdown</h3>
+            <div class="h-80"><canvas id="monthlyPieChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+{# --- ITO ANG MGA BAGONG SCRIPT TAGS PARA SA DATA --- #}
+{{ line_chart_labels|json_script:"analytics-line-labels" }}
+{{ line_chart_values|json_script:"analytics-line-values" }}
+{{ pie_chart_labels|json_script:"analytics-pie-labels" }}
+{{ pie_chart_values|json_script:"analytics-pie-values" }}
+
+{% endblock %}
+
+{% block extra_scripts_official %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    // I-register ang datalabels plugin
+    Chart.register(ChartDataLabels);
+    Chart.defaults.font.family = 'Inter, sans-serif';
+
+    try {
+        // Kunin ang data mula sa mga special <script> tags na may unique IDs
+        const lineLabels = JSON.parse(document.getElementById('analytics-line-labels').textContent);
+        const lineValues = JSON.parse(document.getElementById('analytics-line-values').textContent);
+        const pieLabels = JSON.parse(document.getElementById('analytics-pie-labels').textContent);
+        const pieValues = JSON.parse(document.getElementById('analytics-pie-values').textContent);
+
+        // --- LINE CHART: Daily Incident Trend ---
+        const lineCtx = document.getElementById('dailyLineChart');
+        if(lineCtx) {
+            new Chart(lineCtx, {
+                type: 'line',
+                data: {
+                    labels: lineLabels,
+                    datasets: [{ 
+                        label: 'Incidents', 
+                        data: lineValues, 
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#4f46e5',
+                        pointRadius: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- PIE CHART: Incident Type Breakdown ---
+        const pieCtx = document.getElementById('monthlyPieChart');
+        if(pieCtx && pieValues.length > 0) {
+            new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: pieLabels,
+                    datasets: [{ 
+                        data: pieValues, 
+                        backgroundColor: [
+                        '#3B82F6', // Blue-500
+                        '#10B981', // Green-500
+                        '#F59E0B', // Amber-500
+                        '#8B5CF6', // Violet-500
+                        '#EF4444', // Red-500
+                        '#06B6D4', // Cyan-500
+                        '#EC4899', // Pink-500
+                        '#6B7280', // Gray-500
+                        '#A855F7', // Purple-500
+                        '#EAB308'  // Yellow-500
+                        ],
+                        borderColor: '#F1F5F9',
+                        borderWidth: 4,
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'bottom', align: 'start', labels: { boxWidth: 12, padding: 15 } },
+                        datalabels: {
+                            formatter: (value, ctx) => {
+                                let sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                if (sum === 0) return '0%';
+                                let percentage = (value * 100 / sum).toFixed(1) + "%";
+                                return percentage;
+                            },
+                            color: '#fff', font: { weight: 'bold' }
+                        }
+                    }
+                }
+            });
+        }
+    } catch (e) {
+        console.error("Error rendering analytics charts:", e);
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>{% block email_title %}Barangay Notification{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; color: #333; }
+        .container { padding: 20px; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; }
+        .header { background-color: #0d6efd; color: white; padding: 10px; text-align: center; border-radius: 8px 8px 0 0; }
+        .button { background-color: #198754; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f7; margin: 0; padding: 0;">
+    <center style="width: 100%; table-layout: fixed; background-color: #f4f4f7; padding: 40px 0;">
+        <div style="max-width: 600px; background-color: #ffffff; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+            <!-- Email Header -->
+            <table style="width: 100%; border-spacing: 0; background-color: #0d6efd; color: white;">
+                <tr>
+                    <td style="padding: 10px; text-align: center;">
+                        <h1 style="margin: 0; font-size: 24px; font-weight: bold;">
+                            {% block email_header %}Case Update{% endblock %}
+                        </h1>
+                    </td>
+                </tr>
+            </table>
+            <!-- Main Content -->
+            <table style="width: 100%; border-spacing: 0;">
+                <tr><td style="padding: 30px 40px;">
+                    {% block email_content %}{% endblock %}
+                    <p style="font-size: 14px; color: #666666; line-height: 1.5; margin-top: 30px;">
+                        This is an automated notification. Please do not reply to this email.
+                    </p>
+                    <p style="margin-top: 20px;">Sincerely,<br><strong>Barangay Addition Hills Administration</strong></p>
+                </td></tr>
+            </table>
+            <!-- Email Footer -->
+            <table style="width: 100%; border-spacing: 0; background-color: #f4f4f7; color: #666666;">
+                <tr><td style="padding: 20px 40px; text-align: center; font-size: 12px;">
+                    <p>© {% now "Y" %} Barangay Addition Hills. All rights reserved.</p>
+                </td></tr>
+            </table>
+        </div>
+    </center>
+</body>
+</html>
