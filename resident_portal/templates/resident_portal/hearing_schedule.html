@@ -83,8 +83,7 @@
                     <tr><td class="w-2/3"><p class="font-bold">{{ case.complainant.get_full_name|upper }}</p><p class="border-t border-black mr-4">Complainant/s</p></td><td class="w-1/3" rowspan="2"><p class="font-bold">Case No.</p><p class="border-b border-black text-center">{{ case.blotter_id }}</p><p class="font-bold mt-2">For:</p><p class="border-b border-black text-center">{{ case.get_incident_type_display }}</p></td></tr>
                     <tr><td><p class="font-bold text-center text-lg italic">- against -</p><p class="font-bold">{{ case.respondent_first_name|upper }} {{ case.respondent_last_name|upper }}</p><p class="border-t border-black mr-4">Respondent/s</p></td></tr>
                 </table>
-                <!-- I-paste mo dito ang buong #printable-paper div mula sa official_portal/create_schedule.html -->
-                <!-- Pero papalitan natin ang mga placeholders ng Alpine.js variables -->
+                
                 <div class="text-center"><h2 class="text-3xl font-bold my-8 tracking-widest" x-text="paperTitle"></h2></div>
                 <div class="space-y-4">
                     <p>You are hereby required to appear before me on the <strong class="underline" x-text="selectedProceeding.day"></strong> day of <strong class="underline" x-text="selectedProceeding.month"></strong>, <strong class="underline" x-text="selectedProceeding.year"></strong> at <strong class="underline" x-text="selectedProceeding.time"></strong> for the hearing of your case.</p>

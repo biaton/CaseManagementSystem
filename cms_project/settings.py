@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-jo9%+3g-104su!74o(ho%e!yciuk)71whjg-1(f$3vj^s4fl6(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['jamesB06.pythonanywhere.com']
+ALLOWED_HOSTS = ['barangayadditionhills.site', 'www.barangayadditionhills.site', '217.21.94.42']
 
 
 # Application definition
@@ -58,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'audit_trail.signals.RequestMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'cms_project.urls'
@@ -89,11 +90,11 @@ WSGI_APPLICATION = 'cms_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cms_db',        # Pangalan ng DB na ginawa natin
-        'USER': 'root',          # Default user ng XAMPP MySQL
-        'PASSWORD': '',          # Default password ng XAMPP ay blanko
+        'NAME': 'u703976351_cms_db',        # Pangalan ng DB na ginawa natin
+        'USER': 'u703976351_cms',          # Default user ng XAMPP MySQL
+        'PASSWORD': '4631956James@',          # Default password ng XAMPP ay blanko
         'HOST': 'localhost',     # O '127.0.0.1'
-        'PORT': '3306',          # Default port ng MySQL
+        'PORT': '',          # Default port ng MySQL
     }
 }
 
