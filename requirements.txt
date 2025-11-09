@@ -1,5 +1,6 @@
 asgiref==3.8.1
 distlib==0.3.9
+dj-database-url==3.0.1
 Django==4.2.23
 filelock==3.18.0
 gunicorn==23.0.0
