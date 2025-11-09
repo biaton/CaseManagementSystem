@@ -103,10 +103,10 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'cms_db',
+            'NAME': 'railway',
             'USER': 'root',
-            'PASSWORD': '',
-            'HOST': 'localhost', #'127.0.0.1',
+            'PASSWORD': 'TRBWLqogjCfbNDHLgBTqNvdIgFiNKaUJ',
+            'HOST': 'mysql.railway.internal', #'127.0.0.1',
             'PORT': '3306',
         }
     }
