@@ -13,8 +13,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
-import dj_database_url
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -28,9 +26,8 @@ SECRET_KEY = 'django-insecure-jo9%+3g-104su!74o(ho%e!yciuk)71whjg-1(f$3vj^s4fl6(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = []
 
-os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 
 # Application definition
 
@@ -61,7 +58,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'audit_trail.signals.RequestMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = 'cms_project.urls'
@@ -90,26 +86,16 @@ WSGI_APPLICATION = 'cms_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if 'DATABASE_URL' in os.environ:
-    DATABASES = {
-        'default': 
-        dj_database_url.config(default=os.environ['DATABASE_URL'], conn_max_age=600,
-            conn_health_checks=True
-        ),
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'cms_db',        # Pangalan ng DB na ginawa natin
+        'USER': 'root',          # Default user ng XAMPP MySQL
+        'PASSWORD': '',          # Default password ng XAMPP ay blanko
+        'HOST': 'localhost',     # O '127.0.0.1'
+        'PORT': '3306',          # Default port ng MySQL
     }
-
-else:
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': 'railway',
-            'USER': 'root',
-            'PASSWORD': 'TRBWLqogjCfbNDHLgBTqNvdIgFiNKaUJ',
-            'HOST': 'mysql.railway.internal', #'127.0.0.1',
-            'PORT': '3306',
-        }
-    }
+}
 
 
 # Password validation
