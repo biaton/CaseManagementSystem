@@ -936,6 +936,12 @@ def notify_secretary_view(request, pk):
             if secretary_users.exists():
                 # Pwede mong piliin ang unang secretary o mag-notify sa lahat ng secretary
                 secretary_user = secretary_users.first() 
+
+                print("====================================")
+                print(f"DEBUGGING START: Notify Secretary for Blotter PK {blotter.pk}")
+                print(f"DEBUG: Secretary Username: {secretary_user.username}")
+                print(f"DEBUG: Secretary Email Address: {secretary_user.email}") 
+                print("====================================")
                 
                 # Check if a similar notification already exists to avoid spamming
                 existing_notification = Notification.objects.filter(
@@ -975,6 +981,7 @@ def notify_secretary_view(request, pk):
                             html_message=html_message 
                         )
                         messages.success(request, "Email notification sent to Barangay Secretary.")
+                        print("DEBUG: send_mail executed successfully in views.py.")
                     except Exception as e:
                         print(f"EMAIL SENDING FAILED (Secretary Notification): {e}")
                         messages.warning(request, "Email notification to Barangay Secretary failed to send.") # <-- Ilipat DITO!
